@@ -1,19 +1,23 @@
-<!-- SailUp · index.html · v0.2.2 · 2025-08-13 -->
+<!-- SailUp · index.html · v0.2.5 · 2025-08-13 -->
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title id="page-title">SailUp v0.2.2</title>
+  <title id="page-title">SailUp v0.2.5</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="topbar">
-    <div class="brand" id="brand">⛵ SailUp v0.2.2</div>
+    <div class="brand" id="brand">⛵ SailUp v0.2.5</div>
     <nav class="nav">
       <button type="button" id="btn-home" class="btn btn-ghost small" aria-label="Ir a inicio" title="Inicio" hidden>Inicio</button>
     </nav>
-    <div class="meta" id="meta">
+  </header>
+
+  <main class="chat">
+    <!-- Quiz meta (fuera de la topbar) -->
+    <section class="quiz-meta" id="quiz-meta" hidden>
       <div class="progress-wrap" aria-hidden="true">
         <div class="progress-bar" id="progress-bar" style="width:0%"></div>
       </div>
@@ -21,10 +25,8 @@
         <span id="progress">Pregunta 1 de 2</span>
         <span aria-live="polite" class="score" id="score">Puntuación: 0</span>
       </div>
-    </div>
-  </header>
+    </section>
 
-  <main class="chat">
     <div id="question-container" class="messages" role="list"></div>
   </main>
 
