@@ -15,7 +15,7 @@ document.getElementById('brand').textContent = `⛵ SailUp ${APP_VERSION}`;
  *    GET /api/questions
  * returns: [{ _id, category:{domain,subdomain,topic}, body, answers:[{body, validated, ...}], ... }, ...]
  */
-const QUESTIONS_API = '/api/questions';
+const QUESTIONS_API = 'http://localhost:3000/api/v1/questions/';
 
 // === UI refs ===
 const container   = document.getElementById('question-container');
@@ -68,8 +68,9 @@ async function fetchQuestions(){
  */
 function normalizeFromMongo(docs, { groupBy = 'domain' } = {}){
   const byKey = new Map();
+  console.log(docs)
 
-  (docs || []).forEach((doc, idx) => {
+  docs.data.forEach((doc, idx) => {
     const cat = doc.category || {};
     const domain    = (cat.domain ?? '').trim();
     const subdomain = (cat.subdomain ?? '').trim();
@@ -139,12 +140,7 @@ function slugify(str){
    UI Flow
    ========================= */
 
-<<<<<<< HEAD
-// === Home (welcome & topic selection) ===
-async function showHome(){
-=======
 function showHome(){
->>>>>>> cdd96f8af9d5f3501e42dff4a7ba1ba84b4982df
   mode = 'home';
   quizMetaEl.hidden = true;
   btnHome.hidden = true;
@@ -153,19 +149,7 @@ function showHome(){
   const node = homeTpl.content.cloneNode(true);
   const grid = node.querySelector('#topics-grid');
 
-<<<<<<< HEAD
-  async function fetchQuestions() {
-    const response = await fetch('http://localhost:3000/api/v1/questions');
-    const data = await response.json();
-    return data;
-  }
-
-  const DATA = await fetchQuestions();
-
-  DATA.topics.forEach((t, idx) => {
-=======
   topicsData.forEach((t, idx) => {
->>>>>>> cdd96f8af9d5f3501e42dff4a7ba1ba84b4982df
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'topic-card';
