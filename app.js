@@ -77,7 +77,7 @@ btnHome.addEventListener('click', () => {
 });
 
 // === Home (welcome & topic selection) ===
-function showHome(){
+async function showHome(){
   mode = 'home';
   // Hide meta area (progress & score) and Home button on the home screen
   metaEl.hidden = true;
@@ -86,6 +86,14 @@ function showHome(){
   container.innerHTML = '';
   const node = homeTpl.content.cloneNode(true);
   const grid = node.querySelector('#topics-grid');
+
+  async function fetchQuestions() {
+    const response = await fetch('http://localhost:3000/api/v1/questions');
+    const data = await response.json();
+    return data;
+  }
+
+  const DATA = await fetchQuestions();
 
   DATA.topics.forEach((t, idx) => {
     const card = document.createElement('button');
