@@ -1,14 +1,15 @@
+<!-- SailUp · index.html · v0.2.2 · 2025-08-13 -->
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title id="page-title">SailUp v0.2.0</title>
+  <title id="page-title">SailUp v0.2.2</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="topbar">
-    <div class="brand" id="brand">⛵ SailUp v0.2.0</div>
+    <div class="brand" id="brand">⛵ SailUp v0.2.2</div>
     <nav class="nav">
       <button type="button" id="btn-home" class="btn btn-ghost small" aria-label="Ir a inicio" title="Inicio" hidden>Inicio</button>
     </nav>
@@ -27,7 +28,7 @@
     <div id="question-container" class="messages" role="list"></div>
   </main>
 
-  <!-- Card de pregunta -->
+  <!-- Question card template -->
   <template id="question-card">
     <article class="msg assistant" role="listitem" aria-live="polite">
       <div class="msg-inner">
@@ -57,7 +58,7 @@
     </article>
   </template>
 
-  <!-- Card de bienvenida / selección de tema -->
+  <!-- Home card template (topic selection) -->
   <template id="home-card">
     <article class="msg assistant">
       <div class="msg-inner">
@@ -69,6 +70,7 @@
     </article>
   </template>
 
+  <!-- App logic -->
   <script src="app.js"></script>
 </body>
 </html>

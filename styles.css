@@ -1,9 +1,11 @@
-/* Reset muy ligero para consistencia */
+/* SailUp · styles.css · v0.2.2 · 2025-08-13 */
+
+/* Minimal reset for consistency */
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body { margin: 0; }
 
-/* Tema */
+/* Theme */
 :root{
   --bg:#0e0f12;
   --panel:#17181c;
@@ -38,6 +40,7 @@ body{
 .meta-line{display:flex; justify-content:space-between; gap:12px; align-items:center}
 .meta .score{color:var(--muted); font-size:.95rem}
 
+/* Progress */
 .progress-wrap{
   position:relative; width:240px; height:6px;
   background:#111218; border:1px solid var(--border);
@@ -49,14 +52,14 @@ body{
   transition:width .25s ease;
 }
 
-/* Contenedor estilo chat */
+/* Chat container */
 .chat{display:flex; justify-content:center; padding:24px}
 .messages{
   width:100%; max-width:860px;
   display:flex; flex-direction:column; gap:16px;
 }
 
-/* Mensajes / tarjetas */
+/* Message cards */
 .msg{
   display:block; border:1px solid var(--border);
   background:var(--panel);
@@ -75,7 +78,7 @@ body{
 .q-title{margin:6px 0 4px; font-size:1.15rem; line-height:1.35}
 .q-taxonomy{color:var(--muted); font-size:.92rem; margin-bottom:10px}
 
-/* Opciones */
+/* Options */
 .options{
   display:flex; flex-direction:column; gap:10px; margin:14px 0 4px;
 }
@@ -90,14 +93,14 @@ body{
 .opt input{margin-top:3px; accent-color:var(--accent); transform: scale(1.05)}
 .opt-text{display:block}
 
-/* Estados de opción tras corrección */
+/* Option states after correction */
 .opt.is-selected{ outline:1px dashed #8aa2ff; outline-offset:2px; }
 .opt.is-correct{ border-color: rgba(34,197,94,.6); background: linear-gradient(180deg,#1c2420,#1a221e);}
 .opt.is-wrong{ border-color: rgba(239,68,68,.55); background: linear-gradient(180deg,#271c1c,#211a1a); }
 
 .options-disabled .opt{ cursor:default; }
 
-/* Botones y resultado */
+/* Buttons & result */
 .actions{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
 .btn{
   border:1px solid var(--border); background:var(--panel-2); color:var(--text);
@@ -114,7 +117,7 @@ body{
 .result.err{color:var(--err)}
 .result.warn{color:var(--warn)}
 
-/* Más info */
+/* "Más info" details */
 .more{ margin-top:12px; border-top:1px dashed var(--border); padding-top:12px; }
 .more summary{ cursor:pointer; color:#cfeeff; outline:none; }
 .more-body{ margin-top:10px }
@@ -132,14 +135,14 @@ body{
   .progress-wrap{width:160px}
 }
 
-/* Accesibilidad */
+/* Accessibility */
 :focus-visible{
   outline:2px solid var(--accent);
   outline-offset:2px;
   border-radius:8px;
 }
 
-/* Hint y bloqueo de “Más info” */
+/* "Más info" lock hint */
 .more.locked summary { 
   color: var(--muted); 
   pointer-events: none; 
@@ -147,7 +150,7 @@ body{
 }
 .more.locked .lock-hint { opacity: .8; font-size: .9em; margin-left: 6px; }
 
-/* Resumen final */
+/* Summary list (finish screen) */
 .summary-list{
   list-style:none; padding:0; margin:14px 0 6px;
   display:flex; flex-direction:column; gap:10px;
@@ -162,10 +165,10 @@ body{
 .sum-icon{ width:28px; flex: 0 0 28px; text-align:center; margin-top:2px; }
 .sum-q{ font-weight:600; margin-bottom:2px; }
 
-/* Navegación header */
+/* Header nav */
 .nav { display:flex; align-items:center; gap:8px; }
 
-/* Grid de temas (home) */
+/* Home: topics grid */
 .topics-grid{
   display:grid;
   grid-template-columns: repeat(2, minmax(240px, 1fr));
@@ -180,38 +183,21 @@ body{
   border:1px solid var(--border); border-radius:12px;
   background:var(--panel-2); padding:14px; width:100%;
   transition: transform .08s ease, border-color .15s ease, background .15s ease;
-}
-.topic-card:hover{ border-color:#3a3d48; transform: translateY(-1px); }
-.topic-head{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:6px; }
-.topic-title{ font-weight:700; }
-.topic-count{ color:var(--muted); font-size:.92rem; }
-.topic-desc{ color:#c9ced9; margin:6px 0 10px; }
-.topic-actions{ display:flex; align-items:center; justify-content:space-between; }
-.chip{
-  display:inline-block; font-size:.75rem; letter-spacing:.3px;
-  color:#c9ced9; background:var(--panel);
-  border:1px solid var(--border); padding:2px 8px; border-radius:999px;
-}
-.cta{ font-weight:600; }
-
-/* ---- Fix legibilidad en la Home (botones-cards) ---- */
-:root { color-scheme: dark; } /* Alinea el tema de controles nativos con el fondo oscuro */
-
-.topic-card{
-  color: var(--text);               /* fuerza texto claro en el botón */
+  color: var(--text); /* ensure readable text */
   -webkit-appearance: none;
   appearance: none;
 }
+.topic-card:hover{ border-color:#3a3d48; transform: translateY(-1px); }
 
-.topic-actions .cta {               /* “Comenzar” en claro */
-  color: var(--text);
-}
+.topic-head{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:6px; }
+.topic-title{ font-weight:700; font-size:1.25rem; } /* slightly larger */
+.topic-desc{ color:#c9ced9; margin:6px 0 10px; }
 
-button { color: inherit; }
+.topic-actions{ display:flex; align-items:center; justify-content:flex-end; }
+.cta{ font-weight:600; color: var(--text); }
 
-/* ---- Make sure [hidden] is working ---- */
+/* Dark form controls hint for WebKit */
+:root { color-scheme: dark; }
 
-[hidden] {
-  display: none !important;
-}
-
+/* Ensure [hidden] truly hides elements and removes layout space */
+[hidden] { display: none !important; }

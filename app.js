@@ -1,9 +1,11 @@
-// === Configuración general ===
-const APP_VERSION = 'v0.2.1';
+// SailUp · app.js · v0.2.2 · 2025-08-13
+
+// === App version (single source of truth) ===
+const APP_VERSION = 'v0.2.2';
 document.getElementById('page-title').textContent = `SailUp ${APP_VERSION}`;
 document.getElementById('brand').textContent = `⛵ SailUp ${APP_VERSION}`;
 
-// === Datos (multi-tema) ===
+// === Data (multi-topic ready) ===
 const DATA = {
   topics: [
     {
@@ -37,11 +39,11 @@ const DATA = {
         }
       ]
     }
-    // Más temas en el futuro
+    // Add more topics here in the future
   ]
 };
 
-// === Referencias UI ===
+// === UI refs ===
 const container   = document.getElementById('question-container');
 const qTpl        = document.getElementById('question-card');
 const homeTpl     = document.getElementById('home-card');
@@ -51,19 +53,19 @@ const progressBar = document.getElementById('progress-bar');
 const metaEl      = document.getElementById('meta');
 const btnHome     = document.getElementById('btn-home');
 
-// === Estado ===
+// === State ===
 let mode = 'home';                 // 'home' | 'quiz'
-let activeTopic = null;            // objeto tema seleccionado
-let questions = [];                // preguntas del tema activo
+let activeTopic = null;            // selected topic object
+let questions = [];                // questions of the active topic
 let currentIndex = 0;
 let score = 0;
 const answersLog = [];             // {qIndex, correct, selectedIndex, correctIndex}
 let TOTAL = 0;
 
-// Inicio
+// === Boot ===
 showHome();
 
-// Atajo global: volver al inicio con Alt+H
+// Global shortcut: go Home with Alt+H
 document.addEventListener('keydown', (e) => {
   if (e.altKey && (e.key === 'h' || e.key === 'H')) {
     if (mode === 'quiz') goHome();
@@ -74,9 +76,10 @@ btnHome.addEventListener('click', () => {
   if (mode === 'quiz') goHome();
 });
 
-// === HOME ===
+// === Home (welcome & topic selection) ===
 function showHome(){
   mode = 'home';
+  // Hide meta area (progress & score) and Home button on the home screen
   metaEl.hidden = true;
   btnHome.hidden = true;
 
@@ -85,19 +88,17 @@ function showHome(){
   const grid = node.querySelector('#topics-grid');
 
   DATA.topics.forEach((t, idx) => {
-    const totalQs = t.items.length;
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'topic-card';
-    card.setAttribute('aria-label', `${t.title}. ${totalQs} preguntas.`);
+    card.setAttribute('aria-label', `${t.title}`);
+    // NOTE: Removed practice label and questions count per request
     card.innerHTML = `
       <div class="topic-head">
         <div class="topic-title">${t.title}</div>
-        <div class="topic-count">${totalQs} ${totalQs === 1 ? 'pregunta' : 'preguntas'}</div>
       </div>
       <p class="topic-desc">${t.description || ''}</p>
       <div class="topic-actions">
-        <span class="chip">Modo práctica</span>
         <span class="cta">Comenzar</span>
       </div>
     `;
@@ -108,8 +109,8 @@ function showHome(){
   container.appendChild(node);
 }
 
+// Reset quiz state and go back to home
 function goHome(){
-  // Limpia estado del quiz
   activeTopic = null;
   questions = [];
   currentIndex = 0;
@@ -122,18 +123,18 @@ function goHome(){
   showHome();
 }
 
-// === QUIZ ===
+// === Quiz mode ===
 function startQuiz(topicIndex){
   mode = 'quiz';
   activeTopic = DATA.topics[topicIndex];
 
-  // Prepara preguntas
+  // Prepare questions (shuffle questions and options for the session)
   questions = [...activeTopic.items];
   shuffleInPlace(questions);
   questions = questions.map(q => ({ ...q, Options: shuffleCopy(q.Options) }));
   TOTAL = questions.length;
 
-  // UI meta visible y Home visible
+  // Show meta area and Home button during the quiz
   metaEl.hidden = false;
   btnHome.hidden = false;
 
@@ -148,6 +149,7 @@ function startQuiz(topicIndex){
   document.addEventListener('keydown', onQuizKeys);
 }
 
+// Keyboard shortcuts during the quiz
 function onQuizKeys(e){
   if (mode !== 'quiz') return;
   const btnCheck = container.querySelector('.check');
@@ -162,22 +164,26 @@ function onQuizKeys(e){
   }
 }
 
+// Remove quiz-specific shortcuts
 function cleanupQuizKeys(){
   document.removeEventListener('keydown', onQuizKeys);
 }
 
+// Update top meta progress text and bar width
 function updateProgress() {
   progressEl.textContent = `Pregunta ${Math.min(currentIndex + 1, TOTAL)} de ${TOTAL}`;
   const pct = Math.round((currentIndex) / Math.max(1, TOTAL) * 100);
   progressBar.style.width = `${pct}%`;
 }
 
+// Update score text
 function updateScore() {
   scoreEl.textContent = `Puntuación: ${score}`;
 }
 
+// Render current question card
 function renderQuestion(index) {
-  container.innerHTML = ''; // limpia la pregunta anterior
+  container.innerHTML = ''; // clear previous question
 
   const node = qTpl.content.cloneNode(true);
   const card = node.querySelector('.msg');
@@ -186,7 +192,7 @@ function renderQuestion(index) {
   node.querySelector('.q-title').textContent = `${index + 1}. ${q.Question}`;
   node.querySelector('.q-taxonomy').textContent = `${q.Domain} · ${q.Subdomain} · ${q.Topic}`;
 
-  // Opciones
+  // Options list
   const form = node.querySelector('.options');
   form.setAttribute('aria-labelledby', `qtitle-${index}`);
 
@@ -206,7 +212,7 @@ function renderQuestion(index) {
   const btnCheck = node.querySelector('.check');
   const btnNext  = node.querySelector('.next');
 
-  // Bloquear "Más info" hasta responder
+  // Lock "Más info" until the user answers
   const details = node.querySelector('details.more');
   const moreContent = node.querySelector('.more-content');
   lockMore(details, true);
@@ -219,13 +225,13 @@ function renderQuestion(index) {
       announce(result, 'Selecciona una opción antes de comprobar.', 'warn');
       return;
     }
-    if (corrected) return; // evita doble corrección
+    if (corrected) return; // avoid double correction
 
     const selectedIdx = Number(sel.value);
     const correctIdx = q.Options.findIndex(o => o.correct === true);
     const isCorrect = selectedIdx === correctIdx;
 
-    // Pinta visual
+    // Visual paint
     paintOptions(form, selectedIdx, correctIdx);
 
     if (isCorrect) {
@@ -236,16 +242,16 @@ function renderQuestion(index) {
       announce(result, `❌ Incorrecto. Respuesta correcta: "${q.Options[correctIdx].text}"`, 'err');
     }
 
-    // Registra
+    // Log stats
     answersLog.push({ qIndex: index, correct: isCorrect, selectedIndex: selectedIdx, correctIndex: correctIdx });
 
     corrected = true;
     btnNext.disabled = false;
 
-    // Desbloquear "Más info" tras responder
+    // Unlock "Más info" after answering
     lockMore(details, false);
 
-    // Carga diferida de contenido (conecta tu backend aquí)
+    // Lazy-load extra content area (connect your backend here)
     details.addEventListener('toggle', async () => {
       if (details.open && moreContent.hasAttribute('hidden')) {
         moreContent.removeAttribute('hidden');
@@ -264,7 +270,7 @@ function renderQuestion(index) {
       }
     }, { once: true });
 
-    // Deshabilita opciones para que no cambien la respuesta
+    // Disable radio options to prevent changing the answer
     disableOptions(form, true);
     btnCheck.disabled = true;
   });
@@ -283,6 +289,7 @@ function renderQuestion(index) {
   setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'end' }), 40);
 }
 
+// Paint option states after correction
 function paintOptions(form, selectedIdx, correctIdx){
   const labels = [...form.querySelectorAll('.opt')];
   labels.forEach((label, i) => {
@@ -293,12 +300,14 @@ function paintOptions(form, selectedIdx, correctIdx){
   });
 }
 
+// Disable/enable all radios in a form
 function disableOptions(form, disabled){
   [...form.querySelectorAll('input[type="radio"]')].forEach(inp => inp.disabled = disabled);
   if (disabled) form.classList.add('options-disabled');
   else form.classList.remove('options-disabled');
 }
 
+// Lock/unlock the <details> info panel
 function lockMore(detailsEl, lock) {
   if (lock) {
     detailsEl.classList.add('locked');
@@ -311,6 +320,7 @@ function lockMore(detailsEl, lock) {
   }
 }
 
+// Prevent opening a locked <details>
 function preventOpenWhenLocked(e) {
   const details = e.currentTarget;
   if (details.classList.contains('locked')) {
@@ -319,6 +329,7 @@ function preventOpenWhenLocked(e) {
   }
 }
 
+// Announce result messages with styling
 function announce(el, text, kind) {
   el.className = 'result';
   if (kind === 'ok') el.classList.add('ok');
@@ -327,8 +338,8 @@ function announce(el, text, kind) {
   el.textContent = text;
 }
 
+// Show quiz summary/end screen
 function showFinishScreen() {
-  // 100% en la barra
   progressBar.style.width = '100%';
   progressEl.textContent = 'Completado';
 
@@ -364,7 +375,7 @@ function showFinishScreen() {
     </article>`;
 
   document.getElementById('restart').addEventListener('click', () => {
-    // Reinicio del tema actual
+    // Restart same topic with fresh shuffle
     currentIndex = 0;
     score = 0;
     answersLog.length = 0;
@@ -383,7 +394,9 @@ function showFinishScreen() {
   });
 }
 
-// Utils
+// === Utils ===
+
+// In-place Fisher–Yates shuffle
 function shuffleInPlace(arr){
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -391,6 +404,8 @@ function shuffleInPlace(arr){
   }
   return arr;
 }
+
+// Return a shuffled shallow copy
 function shuffleCopy(arr){
   return shuffleInPlace([...arr]);
 }
