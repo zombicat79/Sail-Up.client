@@ -68,7 +68,6 @@ async function fetchQuestions(){
  */
 function normalizeFromMongo(docs, { groupBy = 'domain' } = {}){
   const byKey = new Map();
-  console.log(docs)
 
   docs.data.forEach((doc, idx) => {
     const cat = doc.category || {};
@@ -106,14 +105,16 @@ function mongoDocToUIQuestion(doc, { fallbackTitle = 'Pregunta' } = {}){
   const Subdomain = cat.subdomain ? capitalizeFirst(cat.subdomain) : '';
   const Topic     = cat.topic     ? capitalizeFirst(cat.topic)     : '';
 
-  const Question  = doc.body || fallbackTitle;
+  const Question  = doc.question || fallbackTitle;
+  const Explanation = doc.summary.text;
+  const Image = doc.summary.image_url;
 
   // answers[] -> Options[]
   // Correct answer = the one with validated === true
-  const answersArr = Array.isArray(doc.answers) ? doc.answers : [];
-  const options = answersArr.map(a => ({
+  const optionsArr = Array.isArray(doc.options) ? doc.options : [];
+  const options = optionsArr.map(a => ({
     text: a.body ?? String(a?._id ?? ''),
-    correct: !!a.validated
+    correct: !!a.correct
   }));
 
   // Safety: ensure at least one "correct" to avoid crashes
@@ -122,7 +123,7 @@ function mongoDocToUIQuestion(doc, { fallbackTitle = 'Pregunta' } = {}){
     options[options.length - 1].correct = true;
   }
 
-  return { Domain, Subdomain, Topic, Question, Options: options };
+  return { Domain, Subdomain, Topic, Question, Options: options, Explanation, Image };
 }
 
 // ---- Helpers ----
@@ -320,14 +321,9 @@ function renderQuestion(index) {
         moreContent.innerHTML = `
           <div class="more-grid">
             <div>
-              <h4>Definición</h4>
-              <p>Ejemplo de texto… Conecta tu endpoint (p. ej. <code>/per-panel?q=${encodeURIComponent(q.Topic || q.Question)}</code>).</p>
+              <p>${topicsData[currentIndex].items[currentIndex].Explanation}</p>
             </div>
-            <div class="img-grid">
-              <div class="img-ph"></div>
-              <div class="img-ph"></div>
-              <div class="img-ph"></div>
-            </div>
+            <img class="img-content" src="${topicsData[currentIndex].items[currentIndex].Image}" />
           </div>`;
       }
     }, { once: true });

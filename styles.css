@@ -139,6 +139,10 @@ body{
   height:86px; border-radius:10px;
   background:linear-gradient(135deg, #252832, #1d1f27);
   border:1px solid var(--border);
+  overflow: hidden;
+}
+.img-content {
+  width: 100%;
 }
 
 /* Finish screen summary */
