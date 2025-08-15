@@ -159,7 +159,6 @@ function showHome(){
       <div class="topic-head">
         <div class="topic-title">${t.title}</div>
       </div>
-      <p class="topic-desc">${t.description || ''}</p>
       <div class="topic-actions">
         <span class="cta">Comenzar</span>
       </div>
@@ -253,7 +252,7 @@ function renderQuestion(index) {
   const q = questions[index];
 
   node.querySelector('.q-title').textContent = `${index + 1}. ${q.Question}`;
-  node.querySelector('.q-taxonomy').textContent = `${q.Domain} · ${q.Subdomain} · ${q.Topic}`;
+  node.querySelector('.q-taxonomy').textContent = `${q.Domain} · ${q.Subdomain}`;
 
   // Options list
   const form = node.querySelector('.options');
@@ -321,9 +320,9 @@ function renderQuestion(index) {
         moreContent.innerHTML = `
           <div class="more-grid">
             <div>
-              <p>${topicsData[currentIndex].items[currentIndex].Explanation}</p>
+              <p>${questions[currentIndex].Explanation}</p>
             </div>
-            <img class="img-content" src="${topicsData[currentIndex].items[currentIndex].Image}" />
+            <img class="img-content" src="${questions[currentIndex].Image}" />
           </div>`;
       }
     }, { once: true });
