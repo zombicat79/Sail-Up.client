@@ -1,7 +1,7 @@
-// SailUp · app.js · v0.4.2
+// SailUp · app.js · v0.4.3
 
 // === Version stamping ===
-const APP_VERSION = 'v0.4.2';
+const APP_VERSION = 'v0.4.3';
 document.getElementById('page-title').textContent = `SailUp ${APP_VERSION}`;
 document.getElementById('brand').textContent = `⛵ SailUp ${APP_VERSION}`;
 
