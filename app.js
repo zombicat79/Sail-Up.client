@@ -69,7 +69,7 @@ function showHome(){
 
   const grid = node.querySelector('#topics-grid');
 
-  DATA.topics.forEach((t, idx) => {
+  DATA.forEach((t, idx) => {
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'topic-card';
@@ -108,7 +108,7 @@ function goHome(){
 
 function startQuiz(topicIndex){
   mode = 'quiz';
-  activeTopic = DATA.topics[topicIndex];
+  activeTopic = DATA[topicIndex];
 
   // Build per-question combined options [{text, correct, summary}]
   questions = activeTopic.items.map(item => {
@@ -157,7 +157,7 @@ function getOptionText(opt){
 }
 function getSummaryByIndex(summaryObj, idx){
   if (!summaryObj) return '';
-  const key = `Summary ${idx + 1}`;
+  const key = `Summary${idx + 1}`;
   return summaryObj[key] ?? '';
 }
 

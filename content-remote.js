@@ -3,7 +3,7 @@
 
 export async function getQuestions() {
   try {
-    const res = await fetch("http://localhost:3000/api/topics");
+    const res = await fetch("http://localhost:3000/api/v1/topics");
     if (!res.ok) throw new Error("Error en la API");
     const data = await res.json();
 
