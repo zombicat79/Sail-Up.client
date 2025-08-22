@@ -1,7 +1,7 @@
-// SailUp · app.js · v0.4.0
+// SailUp · app.js · v0.4.1
 
 // === Version stamping ===
-const APP_VERSION = 'v0.4.0';
+const APP_VERSION = 'v0.4.1';
 document.getElementById('page-title').textContent = `SailUp ${APP_VERSION}`;
 document.getElementById('brand').textContent = `⛵ SailUp ${APP_VERSION}`;
 
@@ -75,8 +75,10 @@ function showHome(){
     card.innerHTML = `
       <div class="topic-head">
         <div class="topic-title">${t.title}</div>
-      </div>
-      <div class="topic-actions">
+        </div>
+        <p class="topic-desc">${t.description || ''}</p>
+        <p><img class="topic-img" src="${t.image}" alt="${t.title}"></p>
+        <div class="topic-actions">
         <span class="cta">Comenzar</span>
       </div>
     `;

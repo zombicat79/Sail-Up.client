@@ -1,4 +1,4 @@
-/* SailUp · styles.css · v0.4.0 */
+/* SailUp · styles.css · v0.4.1 */
 
 /* Reset */
 * { box-sizing: border-box; }
@@ -120,8 +120,11 @@ body{
   appearance: none;
 }
 .topic-card:hover{ border-color:#3a3d48; transform: translateY(-1px); }
-.topic-head{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:2px; }
+.topic-head{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:6px; }
 .topic-title{ font-weight:700; font-size:1.25rem; }
+.topic-desc{ color:#c9ced9; margin:6px 0 10px; }
+.topic-img { display: block; width: 100%; max-height: 140px; object-fit: cover; border-radius: 10px; margin-top: 8px; }
+
 .topic-actions{ display:flex; align-items:center; justify-content:flex-end; }
 .cta{ font-weight:600; color: var(--text); }
 
