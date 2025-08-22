@@ -1,7 +1,7 @@
 // content-local.js
 // Contenido hardcodeado extraído de app.js
 
-export const DATA = {
+export const LOCAL_DATA = {
   topics: [
     {
       id: 'nomenclatura',

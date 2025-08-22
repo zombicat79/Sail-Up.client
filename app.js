@@ -7,8 +7,17 @@ document.getElementById('brand').textContent = `⛵ SailUp ${APP_VERSION}`;
 
 // === Imports ===
 import { SOURCE } from "./config.js";
-import { DATA } from "./content-local.js"; // para local
-// import { getQuestions } from "./content-remote.js"; // para remoto en el futuro
+import { LOCAL_DATA } from "./content-local.js"; // para local
+import { getQuestions } from "./content-remote.js"; // para remoto en el futuro
+
+let DATA;
+if (SOURCE === "local") {
+  DATA = LOCAL_DATA;
+} else {
+  const fetchResult = await getQuestions();
+  DATA = fetchResult.topics.data;
+}
+console.log(DATA)
 
 // === UI refs ===
 const container   = document.getElementById('question-container');
@@ -67,7 +76,7 @@ function showHome(){
 
   const grid = node.querySelector('#topics-grid');
 
-  DATA.topics.forEach((t, idx) => {
+  DATA.forEach((t, idx) => {
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'topic-card';
@@ -106,7 +115,7 @@ function goHome(){
 
 function startQuiz(topicIndex){
   mode = 'quiz';
-  activeTopic = DATA.topics[topicIndex];
+  activeTopic = DATA[topicIndex];
 
   // Build per-question combined options [{text, correct, summary}]
   questions = activeTopic.items.map(item => {
@@ -155,7 +164,7 @@ function getOptionText(opt){
 }
 function getSummaryByIndex(summaryObj, idx){
   if (!summaryObj) return '';
-  const key = `Summary ${idx + 1}`;
+  const key = `Summary${idx + 1}`;
   return summaryObj[key] ?? '';
 }
 
