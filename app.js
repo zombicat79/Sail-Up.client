@@ -12,7 +12,7 @@ import { getQuestions } from "./content-remote.js"; // para remoto en el futuro
 
 let DATA;
 if (SOURCE === "local") {
-  DATA = LOCAL_DATA;
+  DATA = LOCAL_DATA.topics.data;
 } else {
   const fetchResult = await getQuestions();
   DATA = fetchResult.topics.data;
