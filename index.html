@@ -1,22 +1,21 @@
-<!-- SailUp · index.html · v0.2.5 · 2025-08-13 -->
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title id="page-title">SailUp v0.2.5</title>
+  <title id="page-title">SailUp v0.4.0</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="topbar">
-    <div class="brand" id="brand">⛵ SailUp v0.2.5</div>
+    <div class="brand" id="brand">⛵ SailUp v0.4.0</div>
     <nav class="nav">
       <button type="button" id="btn-home" class="btn btn-ghost small" aria-label="Ir a inicio" title="Inicio" hidden>Inicio</button>
     </nav>
   </header>
 
   <main class="chat">
-    <!-- Quiz meta (fuera de la topbar) -->
+    <!-- Meta del quiz (fuera de la topbar) -->
     <section class="quiz-meta" id="quiz-meta" hidden>
       <div class="progress-wrap" aria-hidden="true">
         <div class="progress-bar" id="progress-bar" style="width:0%"></div>
@@ -30,47 +29,54 @@
     <div id="question-container" class="messages" role="list"></div>
   </main>
 
-  <!-- Question card template -->
+  <!-- Tarjeta de pregunta -->
   <template id="question-card">
     <article class="msg assistant" role="listitem" aria-live="polite">
       <div class="msg-inner">
-        <div class="badge">Pregunta</div>
+        <div class="q-domain"></div>
         <h2 class="q-title"></h2>
-        <div class="q-taxonomy"></div>
 
         <form class="options" role="radiogroup" aria-label="Opciones"></form>
 
         <div class="actions">
-          <button type="button" class="btn btn-primary check">Comprobar (↵)</button>
           <button type="button" class="btn btn-primary next" disabled>Siguiente (N)</button>
         </div>
 
         <div class="result" aria-live="polite"></div>
-
-        <details class="more locked">
-          <summary>Más info <span class="lock-hint">(responde para desbloquear)</span></summary>
-          <div class="more-body">
-            <div class="info-placeholder"></div>
-            <div class="more-content" hidden></div>
-          </div>
-        </details>
       </div>
     </article>
   </template>
 
-  <!-- Home card template (topic selection) -->
+  <!-- Home / selección de tema -->
   <template id="home-card">
     <article class="msg assistant">
       <div class="msg-inner">
-        <div class="badge">Bienvenida</div>
-        <h2 class="q-title">Elige un tema para practicar</h2>
-        <p class="muted">Iremos añadiendo más contenidos. Por ahora tienes disponible “Nomenclatura Náutica”.</p>
+        <h2 class="q-title">SailUp</h2>
+        <p class="intro">
+          Bienvenido a <strong>SailUp</strong>, la plataforma de eLearning diseñada para que prepares el PER de forma
+          ágil, clara y divertida. Practica con preguntas reales, aprende con explicaciones al instante y sigue tu
+          progreso tema a tema. ¡Entra a bordo y navega hacia tu título! ⚓
+        </p>
+
+        <!-- Fila: título a la izquierda + toggle a la derecha -->
+        <div class="learn-row">
+          <div class="learn-left">Unidades teóricas:</div>
+          <div class="learn-toggle">
+            <label class="switch">
+              <input type="checkbox" id="toggle-learn" checked>
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-label">Modo aprendizaje</span>
+          </div>
+        </div>
+
+        <!-- Separador -->
+        <div class="divider"></div>
+
         <div class="topics-grid" id="topics-grid"></div>
       </div>
     </article>
   </template>
-
-  <!-- App logic -->
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>

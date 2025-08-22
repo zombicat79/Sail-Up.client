@@ -1,21 +1,14 @@
-// SailUp · app.js · v0.2.5 · 2025-08-13
+// SailUp · app.js · v0.4.0
 
-// === App version (single source of truth) ===
-const APP_VERSION = 'v0.2.5';
+// === Version stamping ===
+const APP_VERSION = 'v0.4.0';
 document.getElementById('page-title').textContent = `SailUp ${APP_VERSION}`;
 document.getElementById('brand').textContent = `⛵ SailUp ${APP_VERSION}`;
 
-/**
- * BACKEND INTEGRATION
- * -------------------
- * This version expects the backend to return an array of Mongo-shaped question docs,
- * like the example you provided (one object per question).
- *
- * Example endpoint:
- *    GET /api/questions
- * returns: [{ _id, category:{domain,subdomain,topic}, body, answers:[{body, validated, ...}], ... }, ...]
- */
-const QUESTIONS_API = 'http://localhost:3000/api/v1/questions/';
+// === Imports ===
+import { SOURCE } from "./config.js";
+import { DATA } from "./content-local.js"; // para local
+// import { getQuestions } from "./content-remote.js"; // para remoto en el futuro
 
 // === UI refs ===
 const container   = document.getElementById('question-container');
@@ -28,119 +21,31 @@ const quizMetaEl  = document.getElementById('quiz-meta');
 const btnHome     = document.getElementById('btn-home');
 
 // === State ===
-let mode = 'home';           // 'home' | 'quiz'
-let topicsData = [];         // [{ id, title, description, items:[UIQuestion] }]
-let activeTopic = null;      // selected topic object
-let questions = [];          // UIQuestion[]
+let mode = 'home';                 // 'home' | 'quiz'
+let learnMode = true;              // toggle "Modo aprendizaje"
+let activeTopic = null;
+let questions = [];                // [{ Domain, Question, Options:[{text, correct, summary}] }]
 let currentIndex = 0;
 let score = 0;
-const answersLog = [];       // {qIndex, correct, selectedIndex, correctIndex}
+const answersLog = [];             // { qIndex, correct (first choice), selectedIndex (first), correctIndex }
 let TOTAL = 0;
 
 // === Boot ===
-init();
+showHome();
 
-async function init(){
-  try {
-    const mongoDocs = await fetchQuestions();
-    topicsData = normalizeFromMongo(mongoDocs, { groupBy: 'domain' });
-  } catch (err) {
-    console.error('Failed to load questions from backend:', err);
-    topicsData = [];
+// Hotkeys: Alt+H → Home, N → Next
+document.addEventListener('keydown', (e) => {
+  if (e.altKey && (e.key === 'h' || e.key === 'H')) {
+    if (mode === 'quiz') goHome();
   }
-  showHome();
-}
-
-// ---- Data fetchers ----
-async function fetchQuestions(){
-  const res = await fetch(QUESTIONS_API, { headers: { 'Accept':'application/json' } });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return await res.json();
-}
-
-/**
- * NORMALIZATION
- * -------------
- * Converts an array of Mongo-shaped question docs into the UI shape.
- * We GROUP questions into topics using `groupBy`:
- *   - 'domain' (default): each domain becomes one "topic" on the home screen.
- *   - 'topic': use category.topic as the group key instead.
- */
-function normalizeFromMongo(docs, { groupBy = 'domain' } = {}){
-  const byKey = new Map();
-
-  docs.data.forEach((doc, idx) => {
-    const cat = doc.category || {};
-    const domain    = (cat.domain ?? '').trim();
-    const subdomain = (cat.subdomain ?? '').trim();
-    const topic     = (cat.topic ?? '').trim();
-
-    // Decide grouping key & home title
-    const key   = (groupBy === 'topic' ? topic : domain) || 'General';
-    const title = capitalizeFirst(key);
-    const desc  = groupBy === 'topic'
-      ? (domain && subdomain ? `${capitalizeFirst(domain)} · ${capitalizeFirst(subdomain)}` : (domain || ''))
-      : (topic ? `Incluye: ${capitalizeFirst(topic)}` : '');
-
-    if (!byKey.has(key)) {
-      byKey.set(key, { id: slugify(title), title, description: desc, items: [] });
-    }
-
-    const uiQ = mongoDocToUIQuestion(doc, { fallbackTitle: `Pregunta ${idx + 1}` });
-    byKey.get(key).items.push(uiQ);
-  });
-
-  // Filter out empty topics just in case
-  const topics = [...byKey.values()].filter(t => (t.items && t.items.length));
-  return topics;
-}
-
-/**
- * Transforms a single Mongo question doc to the UI question shape:
- * { Domain, Subdomain, Topic, Question, Options:[{text, correct}] }
- */
-function mongoDocToUIQuestion(doc, { fallbackTitle = 'Pregunta' } = {}){
-  const cat = doc.category || {};
-  const Domain    = cat.domain    ? capitalizeFirst(cat.domain)    : '';
-  const Subdomain = cat.subdomain ? capitalizeFirst(cat.subdomain) : '';
-  const Topic     = cat.topic     ? capitalizeFirst(cat.topic)     : '';
-
-  const Question  = doc.question || fallbackTitle;
-  const Explanation = doc.summary.text;
-  const Image = doc.summary.image_url;
-
-  // answers[] -> Options[]
-  // Correct answer = the one with validated === true
-  const optionsArr = Array.isArray(doc.options) ? doc.options : [];
-  const options = optionsArr.map(a => ({
-    text: a.body ?? String(a?._id ?? ''),
-    correct: !!a.correct
-  }));
-
-  // Safety: ensure at least one "correct" to avoid crashes
-  if (options.length && !options.some(o => o.correct)) {
-    // if none validated, mark last as correct as a fallback (or first)
-    options[options.length - 1].correct = true;
+  if ((e.key === 'n' || e.key === 'N') && mode === 'quiz') {
+    const btnNext  = container.querySelector('.next');
+    if (btnNext && !btnNext.disabled) btnNext.click();
   }
+});
+btnHome.addEventListener('click', () => { if (mode === 'quiz') goHome(); });
 
-  return { Domain, Subdomain, Topic, Question, Options: options, Explanation, Image };
-}
-
-// ---- Helpers ----
-function capitalizeFirst(str){
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-function slugify(str){
-  return String(str || '')
-    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') || 'topic';
-}
-
-/* =========================
-   UI Flow
-   ========================= */
-
+// === Home ===
 function showHome(){
   mode = 'home';
   quizMetaEl.hidden = true;
@@ -148,9 +53,21 @@ function showHome(){
 
   container.innerHTML = '';
   const node = homeTpl.content.cloneNode(true);
+
+  // Sync toggle from localStorage
+  const saved = localStorage.getItem('learnMode');
+  if (saved !== null) learnMode = saved === 'true';
+
+  const toggle = node.querySelector('#toggle-learn');
+  toggle.checked = learnMode;
+  toggle.addEventListener('change', () => {
+    learnMode = toggle.checked;
+    localStorage.setItem('learnMode', String(learnMode));
+  });
+
   const grid = node.querySelector('#topics-grid');
 
-  topicsData.forEach((t, idx) => {
+  DATA.topics.forEach((t, idx) => {
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'topic-card';
@@ -178,26 +95,34 @@ function goHome(){
   answersLog.length = 0;
   progressBar.style.width = '0%';
   scoreEl.textContent = 'Puntuación: 0';
-
-  cleanupQuizKeys();
   showHome();
 }
 
 /* =========================
-   Quiz mode
+   Quiz
    ========================= */
 
 function startQuiz(topicIndex){
   mode = 'quiz';
-  activeTopic = topicsData[topicIndex] ?? null;
-  if (!activeTopic) {
-    console.warn('Topic not found at index', topicIndex);
-    showHome();
-    return;
-  }
+  activeTopic = DATA.topics[topicIndex];
 
-  // Shuffle questions and options for the session
-  questions = [...activeTopic.items];
+  // Build per-question combined options [{text, correct, summary}]
+  questions = activeTopic.items.map(item => {
+    const combined = (item.Options || []).map((opt, i) => ({
+      text: getOptionText(opt),
+      correct: !!opt.correct,
+      summary: getSummaryByIndex(item.Summary, i) // i: 0..3
+    }));
+    return {
+      Domain: item.Domain,
+      Subdomain: item.Subdomain,
+      Topic: item.Topic,
+      Question: item.Question,
+      Options: combined
+    };
+  });
+
+  // Shuffle questions and options
   shuffleInPlace(questions);
   questions = questions.map(q => ({ ...q, Options: shuffleCopy(q.Options) }));
   TOTAL = questions.length;
@@ -212,26 +137,6 @@ function startQuiz(topicIndex){
   renderQuestion(currentIndex);
   updateProgress();
   updateScore();
-
-  document.addEventListener('keydown', onQuizKeys);
-}
-
-function onQuizKeys(e){
-  if (mode !== 'quiz') return;
-  const btnCheck = container.querySelector('.check');
-  const btnNext  = container.querySelector('.next');
-
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    if (btnCheck && !btnCheck.disabled) btnCheck.click();
-  }
-  if ((e.key === 'n' || e.key === 'N') && btnNext && !btnNext.disabled) {
-    btnNext.click();
-  }
-}
-
-function cleanupQuizKeys(){
-  document.removeEventListener('keydown', onQuizKeys);
 }
 
 function updateProgress() {
@@ -239,25 +144,41 @@ function updateProgress() {
   const pct = Math.round((currentIndex) / Math.max(1, TOTAL) * 100);
   progressBar.style.width = `${pct}%`;
 }
+function updateScore() { scoreEl.textContent = `Puntuación: ${score}`; }
 
-function updateScore() {
-  scoreEl.textContent = `Puntuación: ${score}`;
+// Helpers to extract option text & matching summary
+function getOptionText(opt){
+  const key = Object.keys(opt).find(k => k !== 'correct');
+  return opt[key] ?? '';
+}
+function getSummaryByIndex(summaryObj, idx){
+  if (!summaryObj) return '';
+  const key = `Summary ${idx + 1}`;
+  return summaryObj[key] ?? '';
 }
 
 function renderQuestion(index) {
-  container.innerHTML = ''; // clear previous question
+  container.innerHTML = '';
 
   const node = qTpl.content.cloneNode(true);
   const card = node.querySelector('.msg');
   const q = questions[index];
 
+  // Domain arriba, luego título
+  node.querySelector('.q-domain').textContent = q.Domain || '';
   node.querySelector('.q-title').textContent = `${index + 1}. ${q.Question}`;
-  node.querySelector('.q-taxonomy').textContent = `${q.Domain} · ${q.Subdomain}`;
 
-  // Options list
   const form = node.querySelector('.options');
+  const result = node.querySelector('.result');
+  const btnNext  = node.querySelector('.next');
+
   form.setAttribute('aria-labelledby', `qtitle-${index}`);
 
+  // Track first selection (for scoring & final summary)
+  let firstChosenIndex = null;
+  const correctIdx = q.Options.findIndex(o => o.correct === true);
+
+  // Render options
   q.Options.forEach((opt, i) => {
     const id = `q${index}-opt${i}`;
     const label = document.createElement('label');
@@ -270,66 +191,50 @@ function renderQuestion(index) {
     form.appendChild(label);
   });
 
-  const result = node.querySelector('.result');
-  const btnCheck = node.querySelector('.check');
-  const btnNext  = node.querySelector('.next');
-
-  // Lock "Más info" until the user answers
-  const details = node.querySelector('details.more');
-  const moreContent = node.querySelector('.more-content');
-  lockMore(details, true);
-
-  let corrected = false;
-
-  btnCheck.addEventListener('click', () => {
+  // Instant feedback
+  form.addEventListener('change', () => {
     const sel = form.querySelector('input[type="radio"]:checked');
-    if (!sel) {
-      announce(result, 'Selecciona una opción antes de comprobar.', 'warn');
-      return;
-    }
-    if (corrected) return; // avoid double correction
+    if (!sel) return;
 
     const selectedIdx = Number(sel.value);
-    const correctIdx = q.Options.findIndex(o => o.correct === true);
-    const isCorrect = selectedIdx === correctIdx;
+    const isCorrect = !!q.Options[selectedIdx]?.correct;
 
-    // Visual paint
-    paintOptions(form, selectedIdx, correctIdx);
+    // Persist paint for clicked option
+    persistPaint(form, selectedIdx, isCorrect);
 
-    if (isCorrect) {
-      announce(result, '✅ ¡Correcto!', 'ok');
-      score++;
-      updateScore();
-    } else {
-      announce(result, `❌ Incorrecto. Respuesta correcta: "${q.Options[correctIdx].text}"`, 'err');
+    // Normal mode: after first click disable inputs; if wrong, also reveal correct in green
+    if (!learnMode && firstChosenIndex === null) {
+      if (!isCorrect) {
+        const correctLabel = form.querySelectorAll('.opt')[correctIdx];
+        if (correctLabel) correctLabel.classList.add('is-correct');
+      }
+      // Disable inputs (visual: only text + radio communicate disabled, card keeps active look/hover)
+      [...form.querySelectorAll('input[type="radio"]')].forEach(inp => inp.disabled = true);
+      form.classList.add('options-disabled');
     }
 
-    // Log stats
-    answersLog.push({ qIndex: index, correct: isCorrect, selectedIndex: selectedIdx, correctIndex: correctIdx });
+    // Result text
+    if (isCorrect) {
+      result.innerHTML = `✅ <strong>Respuesta correcta</strong>` + (learnMode ? `<div class="explain">${q.Options[selectedIdx]?.summary || ''}</div>` : '');
+      result.className = 'result ok';
+    } else {
+      result.innerHTML = `❌ <strong>Respuesta incorrecta</strong>` + (learnMode ? `<div class="explain">${q.Options[selectedIdx]?.summary || ''}</div>` : '');
+      result.className = 'result err';
+    }
 
-    corrected = true;
-    btnNext.disabled = false;
+    // First choice: scoring/log, enable Next
+    if (firstChosenIndex === null) {
+      firstChosenIndex = selectedIdx;
+      if (isCorrect) { score++; updateScore(); }
+      btnNext.disabled = false;
 
-    // Unlock "Más info" after answering
-    lockMore(details, false);
-
-    // Lazy-load extra content area (plug your backend if needed)
-    details.addEventListener('toggle', async () => {
-      if (details.open && moreContent.hasAttribute('hidden')) {
-        moreContent.removeAttribute('hidden');
-        moreContent.innerHTML = `
-          <div class="more-grid">
-            <div>
-              <p>${questions[currentIndex].Explanation}</p>
-            </div>
-            <img class="img-content" src="${questions[currentIndex].Image}" />
-          </div>`;
-      }
-    }, { once: true });
-
-    // Disable options
-    disableOptions(form, true);
-    btnCheck.disabled = true;
+      answersLog.push({
+        qIndex: index,
+        correct: isCorrect,
+        selectedIndex: selectedIdx,
+        correctIndex: correctIdx
+      });
+    }
   });
 
   btnNext.addEventListener('click', () => {
@@ -346,48 +251,15 @@ function renderQuestion(index) {
   setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'end' }), 40);
 }
 
-function paintOptions(form, selectedIdx, correctIdx){
+/* ----- UI helpers ----- */
+// Persist color for clicked options (keep previous marks until next question)
+function persistPaint(form, selectedIdx, isCorrect){
   const labels = [...form.querySelectorAll('.opt')];
   labels.forEach((label, i) => {
-    label.classList.remove('is-selected','is-correct','is-wrong');
-    if (i === selectedIdx) label.classList.add('is-selected');
-    if (i === correctIdx) label.classList.add('is-correct');
-    if (i === selectedIdx && selectedIdx !== correctIdx) label.classList.add('is-wrong');
+    if (i === selectedIdx) {
+      label.classList.add(isCorrect ? 'is-correct' : 'is-wrong');
+    }
   });
-}
-
-function disableOptions(form, disabled){
-  [...form.querySelectorAll('input[type="radio"]')].forEach(inp => inp.disabled = disabled);
-  if (disabled) form.classList.add('options-disabled');
-  else form.classList.remove('options-disabled');
-}
-
-function lockMore(detailsEl, lock) {
-  if (lock) {
-    detailsEl.classList.add('locked');
-    detailsEl.setAttribute('aria-disabled', 'true');
-    detailsEl.addEventListener('click', preventOpenWhenLocked);
-  } else {
-    detailsEl.classList.remove('locked');
-    detailsEl.removeAttribute('aria-disabled');
-    detailsEl.removeEventListener('click', preventOpenWhenLocked);
-  }
-}
-
-function preventOpenWhenLocked(e) {
-  const details = e.currentTarget;
-  if (details.classList.contains('locked')) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-}
-
-function announce(el, text, kind) {
-  el.className = 'result';
-  if (kind === 'ok') el.classList.add('ok');
-  if (kind === 'err') el.classList.add('err');
-  if (kind === 'warn') el.classList.add('warn');
-  el.textContent = text;
 }
 
 function showFinishScreen() {
@@ -399,15 +271,14 @@ function showFinishScreen() {
 
   const listItems = answersLog.map((a, i) => {
     const q = questions[a.qIndex];
-    const wasOk = a.correct;
-    const icon = wasOk ? '✅' : '❌';
+    const icon = a.correct ? '✅' : '❌';
     const correctText = q.Options[a.correctIndex]?.text || '';
     return `
-      <li class="sum-item ${wasOk ? 'ok' : 'err'}">
+      <li class="sum-item ${a.correct ? 'ok' : 'err'}">
         <div class="sum-icon">${icon}</div>
         <div class="sum-body">
           <div class="sum-q">${i+1}. ${q.Question}</div>
-          <div class="sum-a muted">Correcta: ${correctText}</div>
+          <div class="sum-a muted">Respuesta correcta: ${correctText}</div>
         </div>
       </li>`;
   }).join('');
@@ -426,20 +297,15 @@ function showFinishScreen() {
     </article>`;
 
   document.getElementById('restart').addEventListener('click', () => {
-    currentIndex = 0;
-    score = 0;
-    answersLog.length = 0;
-
+    currentIndex = 0; score = 0; answersLog.length = 0;
     shuffleInPlace(questions);
     questions = questions.map(q => ({ ...q, Options: shuffleCopy(q.Options) }));
-
     renderQuestion(currentIndex);
     updateProgress();
     updateScore();
   });
 
   document.getElementById('back-home').addEventListener('click', () => {
-    cleanupQuizKeys();
     goHome();
   });
 }
@@ -447,7 +313,6 @@ function showFinishScreen() {
 /* =========================
    Utils
    ========================= */
-
 function shuffleInPlace(arr){
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -455,6 +320,4 @@ function shuffleInPlace(arr){
   }
   return arr;
 }
-function shuffleCopy(arr){
-  return shuffleInPlace([...arr]);
-}
+function shuffleCopy(arr){ return shuffleInPlace([...arr]); }
