@@ -7,10 +7,17 @@ document.getElementById('brand').textContent = `⛵ SailUp ${APP_VERSION}`;
 
 // === Imports ===
 import { CONFIG } from './config.js';
-import { DATA as LOCAL_DATA } from './content-local.js';
+import { LOCAL_DATA } from './content-local.js';
 import { getQuestions as REMOTE_DATA } from './content-remote.js';
 
-const DATA = CONFIG.source === 'remote' ? REMOTE_DATA() : LOCAL_DATA;
+// === Conditional data sourcing ===
+let DATA;
+if (CONFIG.source === "remote") {
+  const fetchResult = await REMOTE_DATA();
+  DATA = fetchResult.topics.data;
+} else {
+  DATA = LOCAL_DATA.topics.data;
+}
 
 // === UI refs ===
 const container   = document.getElementById('question-container');

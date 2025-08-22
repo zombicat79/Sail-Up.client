@@ -1,4 +1,4 @@
 // config.js
 export const CONFIG = {
-  source: 'remote' // o 'remote'
+  source: 'local' // o 'remote'
 };
