@@ -1,2 +1,4 @@
 // config.js
-export const SOURCE = "local"; // "local" o "remote"
+export const CONFIG = {
+  source: 'remote' // o 'remote'
+};

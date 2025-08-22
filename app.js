@@ -1,14 +1,16 @@
-// SailUp · app.js · v0.4.1
+// SailUp · app.js · v0.4.2
 
 // === Version stamping ===
-const APP_VERSION = 'v0.4.1';
+const APP_VERSION = 'v0.4.2';
 document.getElementById('page-title').textContent = `SailUp ${APP_VERSION}`;
 document.getElementById('brand').textContent = `⛵ SailUp ${APP_VERSION}`;
 
 // === Imports ===
-import { SOURCE } from "./config.js";
-import { DATA } from "./content-local.js"; // para local
-// import { getQuestions } from "./content-remote.js"; // para remoto en el futuro
+import { CONFIG } from './config.js';
+import { DATA as LOCAL_DATA } from './content-local.js';
+import { getQuestions as REMOTE_DATA } from './content-remote.js';
+
+const DATA = CONFIG.source === 'remote' ? REMOTE_DATA() : LOCAL_DATA;
 
 // === UI refs ===
 const container   = document.getElementById('question-container');
