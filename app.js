@@ -1,7 +1,7 @@
-// SailUp · app.js · v0.4.3
+// SailUp · app.js · v0.4.4
 
 // === Version stamping ===
-const APP_VERSION = 'v0.4.3';
+const APP_VERSION = 'v0.4.4';
 document.getElementById('page-title').textContent = `SailUp ${APP_VERSION}`;
 document.getElementById('brand').textContent = `⛵ SailUp ${APP_VERSION}`;
 
@@ -28,6 +28,7 @@ const scoreEl     = document.getElementById('score');
 const progressBar = document.getElementById('progress-bar');
 const quizMetaEl  = document.getElementById('quiz-meta');
 const btnHome     = document.getElementById('btn-home');
+const topicSubtitleEl = document.getElementById('topic-subtitle');
 
 // === State ===
 let mode = 'home';                 // 'home' | 'quiz'
@@ -59,6 +60,7 @@ function showHome(){
   mode = 'home';
   quizMetaEl.hidden = true;
   btnHome.hidden = true;
+  topicSubtitleEl.textContent = ''; // 🔹 limpiar subtítulo en home
 
   container.innerHTML = '';
   const node = homeTpl.content.cloneNode(true);
@@ -88,7 +90,6 @@ function showHome(){
         <p class="topic-desc">${t.description || ''}</p>
         <p><img class="topic-img" src="${t.image}" alt="${t.title}"></p>
         <div class="topic-actions">
-        <span class="cta">Comenzar</span>
       </div>
     `;
     card.addEventListener('click', () => startQuiz(idx));
@@ -116,6 +117,7 @@ function goHome(){
 function startQuiz(topicIndex){
   mode = 'quiz';
   activeTopic = DATA[topicIndex];
+  topicSubtitleEl.textContent = activeTopic.title || ''; // 🔹 mostrar título del tema
 
   // Build per-question combined options [{text, correct, summary}]
   questions = activeTopic.items.map(item => {
@@ -176,7 +178,6 @@ function renderQuestion(index) {
   const q = questions[index];
 
   // Domain arriba, luego título
-  node.querySelector('.q-domain').textContent = q.Domain || '';
   node.querySelector('.q-title').textContent = `${index + 1}. ${q.Question}`;
 
   const form = node.querySelector('.options');
@@ -226,7 +227,7 @@ function renderQuestion(index) {
 
     // Result text
     if (isCorrect) {
-      result.innerHTML = `✅ <strong>Respuesta correcta</strong>` + (learnMode ? `<div class="explain">${q.Options[selectedIdx]?.summary || ''}</div>` : '');
+      result.innerHTML = `✅ <strong>Respuesta correcta!</strong>` + (learnMode ? `<div class="explain">${q.Options[selectedIdx]?.summary || ''}</div>` : '');
       result.className = 'result ok';
     } else {
       result.innerHTML = `❌ <strong>Respuesta incorrecta</strong>` + (learnMode ? `<div class="explain">${q.Options[selectedIdx]?.summary || ''}</div>` : '');
@@ -276,6 +277,7 @@ function persistPaint(form, selectedIdx, isCorrect){
 function showFinishScreen() {
   progressBar.style.width = '100%';
   progressEl.textContent = 'Completado';
+  topicSubtitleEl.textContent = activeTopic?.title || ''; // 🔹 mantener subtítulo en resultados
 
   const total = TOTAL;
   const correct = score;
@@ -296,15 +298,13 @@ function showFinishScreen() {
 
   container.innerHTML = `
     <article class="msg system">
-      <div class="msg-inner">
         <h2>🎉 Has finalizado el test</h2>
-        <p class="muted">Puntuación: <strong>${correct}/${total}</strong></p>
+        <p class="muted">Respuestas correctas: <strong>${correct}/${total}</strong></p>
         <ul class="summary-list">${listItems}</ul>
         <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
           <button type="button" class="btn btn-primary" id="restart">Repetir tema</button>
           <button type="button" class="btn" id="back-home">Volver al inicio</button>
         </div>
-      </div>
     </article>`;
 
   document.getElementById('restart').addEventListener('click', () => {

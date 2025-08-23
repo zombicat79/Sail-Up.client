@@ -19,16 +19,16 @@ export const LOCAL_DATA = {
             Thumbnail_url: "assets/img/sailup-nomenclatura-nautica.jpg",
             Question: "Una embarcación está adrizada cuando...",
             Options: [
-              { text: "No tiene escora.", correct: true },
-              { text: "Está en varadero", correct: false },
-              { text: "Apenas se mueve.", correct: false },
-              { text: "Navega contra el viento.", correct: false }
+              { Option1: "No tiene escora.", correct: true },
+              { Option2: "Está en varadero", correct: false },
+              { Option3: "Apenas se mueve.", correct: false },
+              { Option4: "Navega contra el viento.", correct: false }
             ],
             Summary: {
-              Summary1: "Una embarcación está **adrizada** cuando navega vertical y equilibrada, sin inclinación lateral respecto a la vertical; en otras palabras, sin escora.",
-              Summary2: "Se dice que una embarcación está en varadero cuando ha sido sacada del agua y se encuentra en tierra, en un astillero o dique, para realizar trabajos de mantenimiento, reparación o invernaje.",
-              Summary3: "En náutica, la expresión “apenas se mueve” indica que el barco lleva una arrancada muy pequeña o casi nula, es decir, prácticamente no avanza con respecto al agua.",
-              Summary4: "Una embarcación “navega contra el viento” cuando avanza en dirección al viento o lo más cercano posible a él, lo que implica mayor resistencia y necesidad de ajustar el gobierno."
+              Summary1: "Una embarcación está <b>adrizada</b> cuando navega vertical y equilibrada, sin inclinación lateral respecto a la vertical; en otras palabras, sin escora.",
+              Summary2: "Se dice que una embarcación <b>está en varadero</b> cuando ha sido sacada del agua y se encuentra en tierra, en un astillero o dique, para realizar trabajos de mantenimiento, reparación o invernaje.",
+              Summary3: "En náutica, la expresión <b>apenas se mueve</b> indica que el barco lleva una arrancada muy pequeña o casi nula, es decir, prácticamente no avanza con respecto al agua.",
+              Summary4: "Una embarcación <b>navega contra el viento</b> cuando avanza en dirección al viento o lo más cercano posible a él, lo que implica mayor resistencia y necesidad de ajustar el gobierno."
             }
           },
           {
@@ -40,16 +40,16 @@ export const LOCAL_DATA = {
             Thumbnail_url: "",
             Question: "Se denomina aleta a...",
             Options: [
-              { text: "La parte posterior del costado que converge y cierra el casco por detrás.", correct: true },
-              { text: "Una parte frontal de la línea de flotación.", correct: false },
-              { text: "La zona direccional del barco.", correct: false },
-              { text: "La parte bidireccional.", correct: false }
+              { Option1: "La parte posterior del costado que converge y cierra el casco por detrás.", correct: true },
+              { Option2: "Una parte frontal de la línea de flotación.", correct: false },
+              { Option3: "La zona direccional del barco.", correct: false },
+              { Option4: "La parte bidireccional.", correct: false }
             ],
             Summary: {
-              Summary1: "La **aleta** es el tramo del costado situado hacia popa que converge hacia el espejo, cerrando el casco por su parte posterior.",
+              Summary1: "La <b>aleta</b> es el tramo del costado situado hacia popa que converge hacia el espejo, cerrando el casco por su parte posterior.",
               Summary2: "La parte frontal de la línea de flotación corresponde a la proa, que es la zona delantera del barco y la que primero corta las olas al navegar.",
-              Summary3: "La “zona direccional del barco” hace referencia al timón y la pala de gobierno, situados en popa y encargados de controlar el rumbo, no a la aleta.",
-              Summary4: "La expresión “parte bidireccional” no se emplea en náutica para designar ninguna sección del casco, por lo que no describe ningún elemento estructural real."
+              Summary3: "La <b>zona direccional del barco</b> hace referencia al timón y la pala de gobierno, situados en popa y encargados de controlar el rumbo, no a la aleta.",
+              Summary4: "La expresión <b>parte bidireccional</b> no se emplea en náutica para designar ninguna sección del casco, por lo que no describe ningún elemento estructural real."
             }
           }
           // 🔹 Aquí sigue todo el resto del bloque extraído tal cual de app.js...
