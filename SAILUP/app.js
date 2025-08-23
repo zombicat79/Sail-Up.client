@@ -1,23 +1,32 @@
-// SailUp · app.js · v0.4.4
+// SailUp · app.js
 
 // === Version stamping ===
-const APP_VERSION = 'v0.4.4';
-document.getElementById('page-title').textContent = `SailUp ${APP_VERSION}`;
-document.getElementById('brand').textContent = `⛵ SailUp ${APP_VERSION}`;
+const APP_VERSION = 'v0.5.0';
+document.getElementById('page-title').textContent = `SailUp (Beta) ${APP_VERSION}`;
+document.getElementById('brand').textContent = `⛵ SailUp (Beta) ${APP_VERSION}`;
 
 // === Imports ===
 import { CONFIG } from './config.js';
-import { LOCAL_DATA } from './content-local.js';
+import { getLocalData } from './content-local.js';       // 👈 antes era LOCAL_DATA
 import { getQuestions as REMOTE_DATA } from './content-remote.js';
 
 // === Conditional data sourcing ===
 let DATA;
-if (CONFIG.source === "remote") {
-  const fetchResult = await REMOTE_DATA();
-  DATA = fetchResult.topics.data;
-} else {
-  DATA = LOCAL_DATA.topics.data;
+
+async function init() {
+  if (CONFIG.source === "remote") {
+    const fetchResult = await REMOTE_DATA();
+    DATA = fetchResult.topics.data;
+  } else {
+    const localResult = await getLocalData();
+    DATA = localResult.topics.data;
+  }
+
+  // Boot inicial: solo cuando DATA ya está cargado
+  showHome();
 }
+
+init(); // 👈 arrancamos la app
 
 // === UI refs ===
 const container   = document.getElementById('question-container');
