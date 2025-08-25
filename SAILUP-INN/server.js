@@ -1,19 +1,20 @@
 import express from "express";
 import multer from "multer";
 import xlsx from "xlsx";
-import { OpenAI } from "openai";
+import OpenAI from "openai";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 
 dotenv.config();
+console.log("API Key cargada?", !!process.env.OPENAI_API_KEY);
 
 const app = express();
 const upload = multer({ dest: "uploads/" });
 const port = 3000;
 
 // 🚀 Versión de la app
-const APP_VERSION = "v0.3.2";
+const APP_VERSION = "v0.4.0";
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -54,10 +55,18 @@ app.post("/prompts/:name", (req, res) => {
   res.json({ success: true, message: `Prompt ${req.params.name} actualizado` });
 });
 
-// Procesar Excel → aplicar prompt seleccionado
+// 📂 Procesar Excel → aplicar prompt seleccionado
 app.post("/upload", upload.single("file"), async (req, res) => {
   try {
-    const selectedPrompt = req.body.prompt || "prompt_summary.js";
+    const selectedPrompt = req.body.prompt;
+
+    // 🔹 Validación obligatoria
+    if (!selectedPrompt) {
+      return res.status(400).send("❌ Debes seleccionar un prompt antes de procesar el archivo.");
+    }
+
+    console.log(`👉 Usando prompt: ${selectedPrompt}`);
+
     const promptModule = await import(`./prompts/${selectedPrompt}`);
     const activePrompt = promptModule.default;
 
@@ -75,12 +84,11 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     // Procesar cada fila según el prompt activo
     for (let row of worksheet) {
       for (let target of activePrompt.targetColumns) {
-        // 👉 cada prompt define cómo obtener sus inputs
-        const { question, optionText, topic } = activePrompt.getInput(row, target);
+        const input = activePrompt.getInput(row, target);
+        const prompt = activePrompt.buildPrompt(input); // 🔹 pasamos el objeto entero
 
-        const prompt = activePrompt.buildPrompt(question, optionText, topic);
         const response = await client.chat.completions.create({
-          model: activePrompt.model || "gpt-4o",
+          model: activePrompt.model || "gpt-4o-mini",
           messages: [{ role: "user", content: prompt }]
         });
 
@@ -100,7 +108,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
   }
 });
 
-// Descargar Excel
+// 📂 Descargar Excel
 app.get("/download", (req, res) => {
   try {
     const data = req.app.locals.lastData;

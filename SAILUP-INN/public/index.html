@@ -94,6 +94,17 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const formData = new FormData(form);
+
+      // 🔹 Validar que el usuario seleccionó un prompt
+      const selectedPrompt = document.getElementById("promptSelect").value;
+      if (!selectedPrompt) {
+        alert("⚠️ Debes seleccionar un prompt antes de procesar el archivo.");
+        return;
+      }
+
+      // 🔹 Añadir prompt seleccionado al form
+      formData.append("prompt", selectedPrompt);
+
       statusEl.innerHTML = '<span class="spinner">🛟</span> Procesando...';
 
       const response = await fetch("/upload", { method: "POST", body: formData });
