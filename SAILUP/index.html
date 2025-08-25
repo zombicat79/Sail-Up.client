@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title id="page-title">SailUp (Beta) v0.5.0</title>
+  <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" id="brand">⛵ SailUp</div>
+    <nav class="nav">
+      <button type="button" id="btn-home" class="btn btn-ghost small" aria-label="Ir a inicio" title="Inicio" hidden>Inicio</button>
+    </nav>
+  </header>
+
+  <main class="chat">
+    <!-- Meta del quiz (fuera de la topbar) -->
+    <section class="quiz-meta" id="quiz-meta" hidden>
+      <h3 class="topics-title" id="per-title">Patrón de Embarcaciones de Recreo (PER)</h3>
+      <h4 class="topic-subtitle" id="topic-subtitle"></h4>
+      <div class="progress-wrap" aria-hidden="true">
+        <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+      </div>
+      <div class="meta-line">
+        <span id="progress">Pregunta 1 de 2</span>
+        <span aria-live="polite" class="score" id="score">Puntuación: 0</span>
+      </div>
+    </section>
+    
+    <!-- Título global del PER -->
+    <h3 class="topics-title" id="per-title" hidden>Patrón de Embarcaciones de Recreo (PER)</h3>
+
+    <div id="question-container" class="messages" role="list"></div>
+  </main>
+
+  <!-- Tarjeta de pregunta -->
+  <template id="question-card">
+    <article class="msg assistant" role="listitem" aria-live="polite">
+      <div class="msg-inner">
+        <h2 class="q-title"></h2>
+
+        <form class="options" role="radiogroup" aria-label="Opciones"></form>
+
+        <div class="actions">
+          <button type="button" class="btn btn-primary next" disabled>Siguiente (N)</button>
+        </div>
+
+        <div class="result" aria-live="polite"></div>
+      </div>
+    </article>
+  </template>
+
+  <!-- Home / selección de tema -->
+  <template id="home-card">
+    <!-- Caja de introducción -->
+    <article class="msg assistant">
+      <div class="msg-inner">
+        <h2 class="q-title">SailUp</h2>
+        <p class="intro">
+          Bienvenido a <strong>SailUp</strong>, la plataforma de eLearning que te acompaña en la preparación de exámenes y titulaciones náuticas. Practica con preguntas tipo test, aprende con explicaciones al instante y sigue tu progreso tema a tema. ¡Sube a bordo y navega hacia tu objetivo! ⚓
+        </p>
+      </div>
+    </article>
+
+    <!-- Título fuera de la caja -->
+    <h3 class="topics-title-home">Patrón de Embarcaciones de Recreo (PER)</h3>
+
+    <!-- Caja de temas -->
+    <article class="msg assistant">
+      <div class="msg-inner">
+        <!-- Fila: título a la izquierda + toggle a la derecha -->
+        <div class="learn-row">
+          <div class="learn-left">Unidades teóricas</div>
+          <div class="learn-toggle">
+            <label class="switch">
+              <input type="checkbox" id="toggle-learn" checked>
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-label">Modo aprendizaje</span>
+          </div>
+        </div>
+
+        <!-- Separador -->
+        <div class="divider"></div>
+
+        <!-- Grid de temas -->
+        <div class="topics-grid" id="topics-grid"></div>
+      </div>
+    </article>
+  </template>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
