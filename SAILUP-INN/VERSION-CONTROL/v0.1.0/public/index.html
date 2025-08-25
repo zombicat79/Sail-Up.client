@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Procesar Excel con OpenAI</title>
+</head>
+<body>
+  <h1>
+    Procesar Excel con OpenAI 
+    <span id="version" style="font-size:0.8em; color:gray;"></span>
+  </h1>
+  
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".xlsx" required />
+    <button type="submit">Subir y procesar</button>
+  </form>
+  <p id="status"></p>
+
+  <script>
+    // Obtener versión desde el servidor
+    fetch("/version")
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("version").textContent = `(${data.version})`;
+      })
+      .catch(() => {
+        document.getElementById("version").textContent = "(versión desconocida)";
+      });
+
+    const form = document.getElementById("uploadForm");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      document.getElementById("status").textContent = "Procesando...";
+
+      const response = await fetch("/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "result.xlsx";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        document.getElementById("status").textContent = "¡Archivo procesado!";
+      } else {
+        document.getElementById("status").textContent = "Error procesando el archivo.";
+      }
+    });
+  </script>
+</body>
+</html>

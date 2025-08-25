@@ -2,8 +2,6 @@
 
 // === Version stamping ===
 const APP_VERSION = 'v0.5.0';
-document.getElementById('page-title').textContent = `SailUp (Beta) ${APP_VERSION}`;
-document.getElementById('brand').textContent = `⛵ SailUp (Beta) ${APP_VERSION}`;
 
 // === Imports ===
 import { CONFIG } from './config.js';
