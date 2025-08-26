@@ -3,7 +3,7 @@
 
 export async function getQuestions() {
   try {
-    const res = await fetch("http://backend.zombiecat.dev/sail-up/api/v1/topics");
+    const res = await fetch("https://backend.zombiecat.dev/sail-up/api/v1/topics");
     if (!res.ok) throw new Error("Error en la API");
     const data = await res.json();
 

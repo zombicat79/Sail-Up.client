@@ -85,7 +85,7 @@ function showHome(){
 
   const grid = node.querySelector('#topics-grid');
 
-  DATA.forEach((t, idx) => {
+  DATA?.forEach((t, idx) => {
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'topic-card';
