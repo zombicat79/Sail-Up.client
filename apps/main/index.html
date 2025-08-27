@@ -1,0 +1,106 @@
+  <!doctype html>
+  <html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title id="page-title">SailUp</title>
+
+    <link rel="icon" href="assets/img/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/css/styles.css">
+  </head>
+  <body>
+    <!-- Header compartido -->
+    <div id="header-placeholder"></div>
+
+    <main class="chat">
+
+      <!-- 🔹 Caja de introducción fija -->
+      <section id="intro-section">
+        <article class="msg assistant">
+          <div class="msg-inner">
+            <h1 class="title">⛵️ SailUp</h1>
+            <p class="intro">
+              Bienvenido a <strong>SailUp</strong>, la plataforma de eLearning que te acompaña en la preparación de exámenes y titulaciones náuticas. 
+              Practica con preguntas tipo test, aprende con explicaciones al instante y sigue tu progreso tema a tema. 
+              ¡Sube a bordo y navega hacia tu objetivo! ⚓
+            </p>
+          </div>
+        </article>
+      </section>
+
+      <!-- 🔹 Sección dinámica -->
+      <section id="dynamic-section">
+
+        <!-- Título de la titulación -->
+        <div class="unboxed-row">
+          <h2 class="title title-unboxed" id="title-titulacion">
+            Patrón de Embarcaciones de Recreo (PER)
+          </h2>
+        </div>
+
+        <!-- Contenido dinámico: listado de temas, quiz, resultados -->
+        <div id="dynamic-container" role="list"></div>
+      </section>
+
+    </main>
+
+    <!-- === Plantilla de tarjeta de pregunta (quiz) === -->
+    <template id="question-card">
+      <article class="msg assistant" role="listitem" aria-live="polite">
+        <div class="msg-inner">
+          <h2 class="title"></h2>
+          <form class="options" role="radiogroup" aria-label="Opciones"></form>
+          <div class="actions">
+            <button type="button" class="btn btn-primary next" disabled>
+              Siguiente (N)
+            </button>
+          </div>
+          <div class="result" aria-live="polite"></div>
+        </div>
+      </article>
+    </template>
+
+    <!-- === Plantilla pantalla inicial (solo lista de temas) === -->
+    <template id="home-card">
+      <article class="msg assistant">
+        <div class="msg-inner">
+
+          <!-- Cabecera: título a la izquierda + toggle de modo aprendizaje a la derecha -->
+          <div class="learn-row">
+            <h4 class="title title-smaller">📘 Unidades teóricas</h4>
+            <div class="learn-toggle">
+              <label class="switch">
+                <input type="checkbox" id="toggle-learn" checked>
+                <span class="slider"></span>
+              </label>
+              <span class="toggle-label">Modo aprendizaje</span>
+            </div>
+          </div>
+
+          <!-- Grid donde se pintan dinámicamente las tarjetas de dominios/temas -->
+          <div class="domains-grid" id="domains-grid"></div>
+        </div>
+      </article>
+    </template>
+
+    <!-- === Plantilla: meta del quiz (progreso + puntuación) === -->
+    <template id="quiz-meta-tpl">
+      <article class="msg assistant" id="quiz-meta" hidden>
+        <div class="msg-inner">
+          <h3 class="domain-subtitle" id="domain-subtitle"></h3>
+          <div class="progress-wrap" aria-hidden="true">
+            <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+          </div>
+          <div class="meta-line">
+            <span id="progress">Pregunta 1 de 1</span>
+            <span aria-live="polite" class="score" id="score">Puntuación: 0</span>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <!-- Scripts -->
+    <script type="module" src="/main/app.js"></script>
+    <script src="/components/header.js"></script>
+  </body>
+  </html>

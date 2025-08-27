@@ -1,0 +1,820 @@
+{
+  "topics": {
+    "data": [
+      {
+        "id": "nomenclatura",
+        "title": "1. Nomenclatura náutica",
+        "description": "Conjunto de términos que identifican las partes y elementos de una embarcación. Permite comunicarse con precisión a bordo y comprender maniobras, equipos y estructuras del barco.",
+        "image": "assets/img/sailup-nomenclatura-nautica.jpg",
+        "items": [
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Terminología",
+            "Topic": "Adrizar",
+            "Type": "DEFINITION",
+            "Thumbnail": true,
+            "Thumbnail_url": "assets/img/sailup-nomenclatura-nautica.jpg",
+            "Question": "Una embarcación está adrizada cuando...",
+            "Options": [
+              {
+                "text": "No tiene escora.",
+                "correct": true
+              },
+              {
+                "text": "Está en varadero",
+                "correct": false
+              },
+              {
+                "text": "Apenas se mueve.",
+                "correct": false
+              },
+              {
+                "text": "Navega contra el viento.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "Una embarcación está <strong>adrizada</strong> cuando navega vertical y equilibrada, sin inclinación lateral respecto a la vertical; en otras palabras, sin escora.",
+              "Summary2": "Se dice que una embarcación <strong>está en varadero</strong> cuando ha sido sacada del agua y se encuentra en tierra, en un astillero o dique, para realizar trabajos de mantenimiento, reparación o invernaje.",
+              "Summary3": "En náutica, la expresión <strong>apenas se mueve</strong> indica que el barco lleva una arrancada muy pequeña o casi nula, es decir, prácticamente no avanza con respecto al agua.",
+              "Summary4": "Una embarcación <strong>navega contra el viento</strong> cuando avanza en dirección al viento o lo más cercano posible a él, lo que implica mayor resistencia y necesidad de ajustar el gobierno."
+            }
+          },
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Casco",
+            "Topic": "Aleta",
+            "Type": "DEFINITION",
+            "Thumbnail": false,
+            "Thumbnail_url": "",
+            "Question": "Se denomina aleta a...",
+            "Options": [
+              {
+                "text": "La parte posterior del costado que converge y cierra el casco por detrás.",
+                "correct": true
+              },
+              {
+                "text": "Una parte frontal de la línea de flotación.",
+                "correct": false
+              },
+              {
+                "text": "La zona direccional del barco.",
+                "correct": false
+              },
+              {
+                "text": "La parte bidireccional.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "La <strong>aleta</strong> es el tramo del costado situado hacia popa que converge hacia el espejo, cerrando el casco por su parte posterior.",
+              "Summary2": "La <strong>parte frontal de la línea de flotación</strong> corresponde a la proa, que es la zona delantera del barco y la que primero corta las olas al navegar.",
+              "Summary3": "La <strong>zona direccional del barco</strong> hace referencia al timón y la pala de gobierno, situados en popa y encargados de controlar el rumbo, no a la aleta.",
+              "Summary4": "La expresión <strong>parte bidireccional</strong> no se emplea en náutica para designar ninguna sección del casco, por lo que no describe ningún elemento estructural real."
+            }
+          }
+        ]
+      },
+      {
+        "id": "amarre-fondeo",
+        "title": "2. Elementos de amarre y fondeo",
+        "description": "Definiciones y uso de cabos, nudos, anclas y boyas. Su conocimiento garantiza la correcta sujeción de la embarcación y la seguridad en maniobras de puerto y fondeo.",
+        "image": "assets/img/sailup-nomenclatura-nautica.jpg",
+        "items": [
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Terminología",
+            "Topic": "Adrizar",
+            "Type": "DEFINITION",
+            "Thumbnail": true,
+            "Thumbnail_url": "assets/img/sailup-nomenclatura-nautica.jpg",
+            "Question": "Una embarcación está adrizada cuando...",
+            "Options": [
+              {
+                "text": "No tiene escora.",
+                "correct": true
+              },
+              {
+                "text": "Está en varadero",
+                "correct": false
+              },
+              {
+                "text": "Apenas se mueve.",
+                "correct": false
+              },
+              {
+                "text": "Navega contra el viento.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "Una embarcación está <strong>adrizada</strong> cuando navega vertical y equilibrada, sin inclinación lateral respecto a la vertical; en otras palabras, sin escora.",
+              "Summary2": "Se dice que una embarcación <strong>está en varadero</strong> cuando ha sido sacada del agua y se encuentra en tierra, en un astillero o dique, para realizar trabajos de mantenimiento, reparación o invernaje.",
+              "Summary3": "En náutica, la expresión <strong>apenas se mueve</strong> indica que el barco lleva una arrancada muy pequeña o casi nula, es decir, prácticamente no avanza con respecto al agua.",
+              "Summary4": "Una embarcación <strong>navega contra el viento</strong> cuando avanza en dirección al viento o lo más cercano posible a él, lo que implica mayor resistencia y necesidad de ajustar el gobierno."
+            }
+          },
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Casco",
+            "Topic": "Aleta",
+            "Type": "DEFINITION",
+            "Thumbnail": false,
+            "Thumbnail_url": "",
+            "Question": "Se denomina aleta a...",
+            "Options": [
+              {
+                "text": "La parte posterior del costado que converge y cierra el casco por detrás.",
+                "correct": true
+              },
+              {
+                "text": "Una parte frontal de la línea de flotación.",
+                "correct": false
+              },
+              {
+                "text": "La zona direccional del barco.",
+                "correct": false
+              },
+              {
+                "text": "La parte bidireccional.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "La <strong>aleta</strong> es el tramo del costado situado hacia popa que converge hacia el espejo, cerrando el casco por su parte posterior.",
+              "Summary2": "La <strong>parte frontal de la línea de flotación</strong> corresponde a la proa, que es la zona delantera del barco y la que primero corta las olas al navegar.",
+              "Summary3": "La <strong>zona direccional del barco</strong> hace referencia al timón y la pala de gobierno, situados en popa y encargados de controlar el rumbo, no a la aleta.",
+              "Summary4": "La expresión <strong>parte bidireccional</strong> no se emplea en náutica para designar ninguna sección del casco, por lo que no describe ningún elemento estructural real."
+            }
+          }
+        ]
+      },
+      {
+        "id": "seguridad-mar",
+        "title": "3. Seguridad en la mar",
+        "description": "Normas y equipos esenciales para prevenir y afrontar riesgos. Incluye chalecos, bengalas, balsas salvavidas y sistemas de extinción para una navegación segura.",
+        "image": "assets/img/sailup-nomenclatura-nautica.jpg",
+        "items": [
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Terminología",
+            "Topic": "Adrizar",
+            "Type": "DEFINITION",
+            "Thumbnail": true,
+            "Thumbnail_url": "assets/img/sailup-nomenclatura-nautica.jpg",
+            "Question": "Una embarcación está adrizada cuando...",
+            "Options": [
+              {
+                "text": "No tiene escora.",
+                "correct": true
+              },
+              {
+                "text": "Está en varadero",
+                "correct": false
+              },
+              {
+                "text": "Apenas se mueve.",
+                "correct": false
+              },
+              {
+                "text": "Navega contra el viento.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "Una embarcación está <strong>adrizada</strong> cuando navega vertical y equilibrada, sin inclinación lateral respecto a la vertical; en otras palabras, sin escora.",
+              "Summary2": "Se dice que una embarcación <strong>está en varadero</strong> cuando ha sido sacada del agua y se encuentra en tierra, en un astillero o dique, para realizar trabajos de mantenimiento, reparación o invernaje.",
+              "Summary3": "En náutica, la expresión <strong>apenas se mueve</strong> indica que el barco lleva una arrancada muy pequeña o casi nula, es decir, prácticamente no avanza con respecto al agua.",
+              "Summary4": "Una embarcación <strong>navega contra el viento</strong> cuando avanza en dirección al viento o lo más cercano posible a él, lo que implica mayor resistencia y necesidad de ajustar el gobierno."
+            }
+          },
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Casco",
+            "Topic": "Aleta",
+            "Type": "DEFINITION",
+            "Thumbnail": false,
+            "Thumbnail_url": "",
+            "Question": "Se denomina aleta a...",
+            "Options": [
+              {
+                "text": "La parte posterior del costado que converge y cierra el casco por detrás.",
+                "correct": true
+              },
+              {
+                "text": "Una parte frontal de la línea de flotación.",
+                "correct": false
+              },
+              {
+                "text": "La zona direccional del barco.",
+                "correct": false
+              },
+              {
+                "text": "La parte bidireccional.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "La <strong>aleta</strong> es el tramo del costado situado hacia popa que converge hacia el espejo, cerrando el casco por su parte posterior.",
+              "Summary2": "La <strong>parte frontal de la línea de flotación</strong> corresponde a la proa, que es la zona delantera del barco y la que primero corta las olas al navegar.",
+              "Summary3": "La <strong>zona direccional del barco</strong> hace referencia al timón y la pala de gobierno, situados en popa y encargados de controlar el rumbo, no a la aleta.",
+              "Summary4": "La expresión <strong>parte bidireccional</strong> no se emplea en náutica para designar ninguna sección del casco, por lo que no describe ningún elemento estructural real."
+            }
+          }
+        ]
+      },
+      {
+        "id": "legislacion",
+        "title": "4. Legislación",
+        "description": "Marco legal que regula la navegación de recreo y las responsabilidades del patrón. Abarca atribuciones de las titulaciones, normativa marítima y obligaciones básicas.",
+        "image": "assets/img/sailup-nomenclatura-nautica.jpg",
+        "items": [
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Terminología",
+            "Topic": "Adrizar",
+            "Type": "DEFINITION",
+            "Thumbnail": true,
+            "Thumbnail_url": "assets/img/sailup-nomenclatura-nautica.jpg",
+            "Question": "Una embarcación está adrizada cuando...",
+            "Options": [
+              {
+                "text": "No tiene escora.",
+                "correct": true
+              },
+              {
+                "text": "Está en varadero",
+                "correct": false
+              },
+              {
+                "text": "Apenas se mueve.",
+                "correct": false
+              },
+              {
+                "text": "Navega contra el viento.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "Una embarcación está <strong>adrizada</strong> cuando navega vertical y equilibrada, sin inclinación lateral respecto a la vertical; en otras palabras, sin escora.",
+              "Summary2": "Se dice que una embarcación <strong>está en varadero</strong> cuando ha sido sacada del agua y se encuentra en tierra, en un astillero o dique, para realizar trabajos de mantenimiento, reparación o invernaje.",
+              "Summary3": "En náutica, la expresión <strong>apenas se mueve</strong> indica que el barco lleva una arrancada muy pequeña o casi nula, es decir, prácticamente no avanza con respecto al agua.",
+              "Summary4": "Una embarcación <strong>navega contra el viento</strong> cuando avanza en dirección al viento o lo más cercano posible a él, lo que implica mayor resistencia y necesidad de ajustar el gobierno."
+            }
+          },
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Casco",
+            "Topic": "Aleta",
+            "Type": "DEFINITION",
+            "Thumbnail": false,
+            "Thumbnail_url": "",
+            "Question": "Se denomina aleta a...",
+            "Options": [
+              {
+                "text": "La parte posterior del costado que converge y cierra el casco por detrás.",
+                "correct": true
+              },
+              {
+                "text": "Una parte frontal de la línea de flotación.",
+                "correct": false
+              },
+              {
+                "text": "La zona direccional del barco.",
+                "correct": false
+              },
+              {
+                "text": "La parte bidireccional.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "La <strong>aleta</strong> es el tramo del costado situado hacia popa que converge hacia el espejo, cerrando el casco por su parte posterior.",
+              "Summary2": "La <strong>parte frontal de la línea de flotación</strong> corresponde a la proa, que es la zona delantera del barco y la que primero corta las olas al navegar.",
+              "Summary3": "La <strong>zona direccional del barco</strong> hace referencia al timón y la pala de gobierno, situados en popa y encargados de controlar el rumbo, no a la aleta.",
+              "Summary4": "La expresión <strong>parte bidireccional</strong> no se emplea en náutica para designar ninguna sección del casco, por lo que no describe ningún elemento estructural real."
+            }
+          }
+        ]
+      },
+      {
+        "id": "balizamiento",
+        "title": "5. Balizamiento",
+        "description": "Sistema de señales marítimas que indica peligros, canales y zonas especiales. Permite interpretar boyas y marcas del sistema IALA-A para navegar con seguridad.",
+        "image": "assets/img/sailup-nomenclatura-nautica.jpg",
+        "items": [
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Terminología",
+            "Topic": "Adrizar",
+            "Type": "DEFINITION",
+            "Thumbnail": true,
+            "Thumbnail_url": "assets/img/sailup-nomenclatura-nautica.jpg",
+            "Question": "Una embarcación está adrizada cuando...",
+            "Options": [
+              {
+                "text": "No tiene escora.",
+                "correct": true
+              },
+              {
+                "text": "Está en varadero",
+                "correct": false
+              },
+              {
+                "text": "Apenas se mueve.",
+                "correct": false
+              },
+              {
+                "text": "Navega contra el viento.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "Una embarcación está <strong>adrizada</strong> cuando navega vertical y equilibrada, sin inclinación lateral respecto a la vertical; en otras palabras, sin escora.",
+              "Summary2": "Se dice que una embarcación <strong>está en varadero</strong> cuando ha sido sacada del agua y se encuentra en tierra, en un astillero o dique, para realizar trabajos de mantenimiento, reparación o invernaje.",
+              "Summary3": "En náutica, la expresión <strong>apenas se mueve</strong> indica que el barco lleva una arrancada muy pequeña o casi nula, es decir, prácticamente no avanza con respecto al agua.",
+              "Summary4": "Una embarcación <strong>navega contra el viento</strong> cuando avanza en dirección al viento o lo más cercano posible a él, lo que implica mayor resistencia y necesidad de ajustar el gobierno."
+            }
+          },
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Casco",
+            "Topic": "Aleta",
+            "Type": "DEFINITION",
+            "Thumbnail": false,
+            "Thumbnail_url": "",
+            "Question": "Se denomina aleta a...",
+            "Options": [
+              {
+                "text": "La parte posterior del costado que converge y cierra el casco por detrás.",
+                "correct": true
+              },
+              {
+                "text": "Una parte frontal de la línea de flotación.",
+                "correct": false
+              },
+              {
+                "text": "La zona direccional del barco.",
+                "correct": false
+              },
+              {
+                "text": "La parte bidireccional.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "La <strong>aleta</strong> es el tramo del costado situado hacia popa que converge hacia el espejo, cerrando el casco por su parte posterior.",
+              "Summary2": "La <strong>parte frontal de la línea de flotación</strong> corresponde a la proa, que es la zona delantera del barco y la que primero corta las olas al navegar.",
+              "Summary3": "La <strong>zona direccional del barco</strong> hace referencia al timón y la pala de gobierno, situados en popa y encargados de controlar el rumbo, no a la aleta.",
+              "Summary4": "La expresión <strong>parte bidireccional</strong> no se emplea en náutica para designar ninguna sección del casco, por lo que no describe ningún elemento estructural real."
+            }
+          }
+        ]
+      },
+      {
+        "id": "ripa",
+        "title": "6. Reglamento Internacional (RIPA)",
+        "description": "Conjunto de reglas que evitan abordajes en la mar. Establece luces, marcas, señales y prioridades de paso para garantizar la seguridad del tráfico marítimo.",
+        "image": "assets/img/sailup-nomenclatura-nautica.jpg",
+        "items": [
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Terminología",
+            "Topic": "Adrizar",
+            "Type": "DEFINITION",
+            "Thumbnail": true,
+            "Thumbnail_url": "assets/img/sailup-nomenclatura-nautica.jpg",
+            "Question": "Una embarcación está adrizada cuando...",
+            "Options": [
+              {
+                "text": "No tiene escora.",
+                "correct": true
+              },
+              {
+                "text": "Está en varadero",
+                "correct": false
+              },
+              {
+                "text": "Apenas se mueve.",
+                "correct": false
+              },
+              {
+                "text": "Navega contra el viento.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "Una embarcación está <strong>adrizada</strong> cuando navega vertical y equilibrada, sin inclinación lateral respecto a la vertical; en otras palabras, sin escora.",
+              "Summary2": "Se dice que una embarcación <strong>está en varadero</strong> cuando ha sido sacada del agua y se encuentra en tierra, en un astillero o dique, para realizar trabajos de mantenimiento, reparación o invernaje.",
+              "Summary3": "En náutica, la expresión <strong>apenas se mueve</strong> indica que el barco lleva una arrancada muy pequeña o casi nula, es decir, prácticamente no avanza con respecto al agua.",
+              "Summary4": "Una embarcación <strong>navega contra el viento</strong> cuando avanza en dirección al viento o lo más cercano posible a él, lo que implica mayor resistencia y necesidad de ajustar el gobierno."
+            }
+          },
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Casco",
+            "Topic": "Aleta",
+            "Type": "DEFINITION",
+            "Thumbnail": false,
+            "Thumbnail_url": "",
+            "Question": "Se denomina aleta a...",
+            "Options": [
+              {
+                "text": "La parte posterior del costado que converge y cierra el casco por detrás.",
+                "correct": true
+              },
+              {
+                "text": "Una parte frontal de la línea de flotación.",
+                "correct": false
+              },
+              {
+                "text": "La zona direccional del barco.",
+                "correct": false
+              },
+              {
+                "text": "La parte bidireccional.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "La <strong>aleta</strong> es el tramo del costado situado hacia popa que converge hacia el espejo, cerrando el casco por su parte posterior.",
+              "Summary2": "La <strong>parte frontal de la línea de flotación</strong> corresponde a la proa, que es la zona delantera del barco y la que primero corta las olas al navegar.",
+              "Summary3": "La <strong>zona direccional del barco</strong> hace referencia al timón y la pala de gobierno, situados en popa y encargados de controlar el rumbo, no a la aleta.",
+              "Summary4": "La expresión <strong>parte bidireccional</strong> no se emplea en náutica para designar ninguna sección del casco, por lo que no describe ningún elemento estructural real."
+            }
+          }
+        ]
+      },
+      {
+        "id": "maniobra-navegacion",
+        "title": "7. Maniobra y navegación",
+        "description": "Procedimientos básicos de gobierno y control de la embarcación. Incluye atraque, desatraque, maniobras con viento y corriente, así como remolques y giros.",
+        "image": "assets/img/sailup-nomenclatura-nautica.jpg",
+        "items": [
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Terminología",
+            "Topic": "Adrizar",
+            "Type": "DEFINITION",
+            "Thumbnail": true,
+            "Thumbnail_url": "assets/img/sailup-nomenclatura-nautica.jpg",
+            "Question": "Una embarcación está adrizada cuando...",
+            "Options": [
+              {
+                "text": "No tiene escora.",
+                "correct": true
+              },
+              {
+                "text": "Está en varadero",
+                "correct": false
+              },
+              {
+                "text": "Apenas se mueve.",
+                "correct": false
+              },
+              {
+                "text": "Navega contra el viento.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "Una embarcación está <strong>adrizada</strong> cuando navega vertical y equilibrada, sin inclinación lateral respecto a la vertical; en otras palabras, sin escora.",
+              "Summary2": "Se dice que una embarcación <strong>está en varadero</strong> cuando ha sido sacada del agua y se encuentra en tierra, en un astillero o dique, para realizar trabajos de mantenimiento, reparación o invernaje.",
+              "Summary3": "En náutica, la expresión <strong>apenas se mueve</strong> indica que el barco lleva una arrancada muy pequeña o casi nula, es decir, prácticamente no avanza con respecto al agua.",
+              "Summary4": "Una embarcación <strong>navega contra el viento</strong> cuando avanza en dirección al viento o lo más cercano posible a él, lo que implica mayor resistencia y necesidad de ajustar el gobierno."
+            }
+          },
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Casco",
+            "Topic": "Aleta",
+            "Type": "DEFINITION",
+            "Thumbnail": false,
+            "Thumbnail_url": "",
+            "Question": "Se denomina aleta a...",
+            "Options": [
+              {
+                "text": "La parte posterior del costado que converge y cierra el casco por detrás.",
+                "correct": true
+              },
+              {
+                "text": "Una parte frontal de la línea de flotación.",
+                "correct": false
+              },
+              {
+                "text": "La zona direccional del barco.",
+                "correct": false
+              },
+              {
+                "text": "La parte bidireccional.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "La <strong>aleta</strong> es el tramo del costado situado hacia popa que converge hacia el espejo, cerrando el casco por su parte posterior.",
+              "Summary2": "La <strong>parte frontal de la línea de flotación</strong> corresponde a la proa, que es la zona delantera del barco y la que primero corta las olas al navegar.",
+              "Summary3": "La <strong>zona direccional del barco</strong> hace referencia al timón y la pala de gobierno, situados en popa y encargados de controlar el rumbo, no a la aleta.",
+              "Summary4": "La expresión <strong>parte bidireccional</strong> no se emplea en náutica para designar ninguna sección del casco, por lo que no describe ningún elemento estructural real."
+            }
+          }
+        ]
+      },
+      {
+        "id": "emergencias",
+        "title": "8. Emergencias en la mar",
+        "description": "Protocolos de actuación ante incidentes graves como hombre al agua, incendios o vías de agua. Enseña cómo reaccionar y comunicar situaciones de socorro.",
+        "image": "assets/img/sailup-nomenclatura-nautica.jpg",
+        "items": [
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Terminología",
+            "Topic": "Adrizar",
+            "Type": "DEFINITION",
+            "Thumbnail": true,
+            "Thumbnail_url": "assets/img/sailup-nomenclatura-nautica.jpg",
+            "Question": "Una embarcación está adrizada cuando...",
+            "Options": [
+              {
+                "text": "No tiene escora.",
+                "correct": true
+              },
+              {
+                "text": "Está en varadero",
+                "correct": false
+              },
+              {
+                "text": "Apenas se mueve.",
+                "correct": false
+              },
+              {
+                "text": "Navega contra el viento.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "Una embarcación está <strong>adrizada</strong> cuando navega vertical y equilibrada, sin inclinación lateral respecto a la vertical; en otras palabras, sin escora.",
+              "Summary2": "Se dice que una embarcación <strong>está en varadero</strong> cuando ha sido sacada del agua y se encuentra en tierra, en un astillero o dique, para realizar trabajos de mantenimiento, reparación o invernaje.",
+              "Summary3": "En náutica, la expresión <strong>apenas se mueve</strong> indica que el barco lleva una arrancada muy pequeña o casi nula, es decir, prácticamente no avanza con respecto al agua.",
+              "Summary4": "Una embarcación <strong>navega contra el viento</strong> cuando avanza en dirección al viento o lo más cercano posible a él, lo que implica mayor resistencia y necesidad de ajustar el gobierno."
+            }
+          },
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Casco",
+            "Topic": "Aleta",
+            "Type": "DEFINITION",
+            "Thumbnail": false,
+            "Thumbnail_url": "",
+            "Question": "Se denomina aleta a...",
+            "Options": [
+              {
+                "text": "La parte posterior del costado que converge y cierra el casco por detrás.",
+                "correct": true
+              },
+              {
+                "text": "Una parte frontal de la línea de flotación.",
+                "correct": false
+              },
+              {
+                "text": "La zona direccional del barco.",
+                "correct": false
+              },
+              {
+                "text": "La parte bidireccional.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "La <strong>aleta</strong> es el tramo del costado situado hacia popa que converge hacia el espejo, cerrando el casco por su parte posterior.",
+              "Summary2": "La <strong>parte frontal de la línea de flotación</strong> corresponde a la proa, que es la zona delantera del barco y la que primero corta las olas al navegar.",
+              "Summary3": "La <strong>zona direccional del barco</strong> hace referencia al timón y la pala de gobierno, situados en popa y encargados de controlar el rumbo, no a la aleta.",
+              "Summary4": "La expresión <strong>parte bidireccional</strong> no se emplea en náutica para designar ninguna sección del casco, por lo que no describe ningún elemento estructural real."
+            }
+          }
+        ]
+      },
+      {
+        "id": "meteorologia",
+        "title": "9. Meteorología",
+        "description": "Principios básicos para interpretar el tiempo en la mar. Explica presión, viento, nubes y frentes, así como la lectura de partes meteorológicos para planificar la travesía.",
+        "image": "assets/img/sailup-nomenclatura-nautica.jpg",
+        "items": [
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Terminología",
+            "Topic": "Adrizar",
+            "Type": "DEFINITION",
+            "Thumbnail": true,
+            "Thumbnail_url": "assets/img/sailup-nomenclatura-nautica.jpg",
+            "Question": "Una embarcación está adrizada cuando...",
+            "Options": [
+              {
+                "text": "No tiene escora.",
+                "correct": true
+              },
+              {
+                "text": "Está en varadero",
+                "correct": false
+              },
+              {
+                "text": "Apenas se mueve.",
+                "correct": false
+              },
+              {
+                "text": "Navega contra el viento.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "Una embarcación está <strong>adrizada</strong> cuando navega vertical y equilibrada, sin inclinación lateral respecto a la vertical; en otras palabras, sin escora.",
+              "Summary2": "Se dice que una embarcación <strong>está en varadero</strong> cuando ha sido sacada del agua y se encuentra en tierra, en un astillero o dique, para realizar trabajos de mantenimiento, reparación o invernaje.",
+              "Summary3": "En náutica, la expresión <strong>apenas se mueve</strong> indica que el barco lleva una arrancada muy pequeña o casi nula, es decir, prácticamente no avanza con respecto al agua.",
+              "Summary4": "Una embarcación <strong>navega contra el viento</strong> cuando avanza en dirección al viento o lo más cercano posible a él, lo que implica mayor resistencia y necesidad de ajustar el gobierno."
+            }
+          },
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Casco",
+            "Topic": "Aleta",
+            "Type": "DEFINITION",
+            "Thumbnail": false,
+            "Thumbnail_url": "",
+            "Question": "Se denomina aleta a...",
+            "Options": [
+              {
+                "text": "La parte posterior del costado que converge y cierra el casco por detrás.",
+                "correct": true
+              },
+              {
+                "text": "Una parte frontal de la línea de flotación.",
+                "correct": false
+              },
+              {
+                "text": "La zona direccional del barco.",
+                "correct": false
+              },
+              {
+                "text": "La parte bidireccional.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "La <strong>aleta</strong> es el tramo del costado situado hacia popa que converge hacia el espejo, cerrando el casco por su parte posterior.",
+              "Summary2": "La <strong>parte frontal de la línea de flotación</strong> corresponde a la proa, que es la zona delantera del barco y la que primero corta las olas al navegar.",
+              "Summary3": "La <strong>zona direccional del barco</strong> hace referencia al timón y la pala de gobierno, situados en popa y encargados de controlar el rumbo, no a la aleta.",
+              "Summary4": "La expresión <strong>parte bidireccional</strong> no se emplea en náutica para designar ninguna sección del casco, por lo que no describe ningún elemento estructural real."
+            }
+          }
+        ]
+      },
+      {
+        "id": "teoria-navegacion",
+        "title": "10. Teoría de navegación",
+        "description": "Conceptos fundamentales para orientarse y trazar derrotas. Incluye coordenadas, rumbos, demoras y correcciones de la aguja náutica para calcular posiciones.",
+        "image": "assets/img/sailup-nomenclatura-nautica.jpg",
+        "items": [
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Terminología",
+            "Topic": "Adrizar",
+            "Type": "DEFINITION",
+            "Thumbnail": true,
+            "Thumbnail_url": "assets/img/sailup-nomenclatura-nautica.jpg",
+            "Question": "Una embarcación está adrizada cuando...",
+            "Options": [
+              {
+                "text": "No tiene escora.",
+                "correct": true
+              },
+              {
+                "text": "Está en varadero",
+                "correct": false
+              },
+              {
+                "text": "Apenas se mueve.",
+                "correct": false
+              },
+              {
+                "text": "Navega contra el viento.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "Una embarcación está <strong>adrizada</strong> cuando navega vertical y equilibrada, sin inclinación lateral respecto a la vertical; en otras palabras, sin escora.",
+              "Summary2": "Se dice que una embarcación <strong>está en varadero</strong> cuando ha sido sacada del agua y se encuentra en tierra, en un astillero o dique, para realizar trabajos de mantenimiento, reparación o invernaje.",
+              "Summary3": "En náutica, la expresión <strong>apenas se mueve</strong> indica que el barco lleva una arrancada muy pequeña o casi nula, es decir, prácticamente no avanza con respecto al agua.",
+              "Summary4": "Una embarcación <strong>navega contra el viento</strong> cuando avanza en dirección al viento o lo más cercano posible a él, lo que implica mayor resistencia y necesidad de ajustar el gobierno."
+            }
+          },
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Casco",
+            "Topic": "Aleta",
+            "Type": "DEFINITION",
+            "Thumbnail": false,
+            "Thumbnail_url": "",
+            "Question": "Se denomina aleta a...",
+            "Options": [
+              {
+                "text": "La parte posterior del costado que converge y cierra el casco por detrás.",
+                "correct": true
+              },
+              {
+                "text": "Una parte frontal de la línea de flotación.",
+                "correct": false
+              },
+              {
+                "text": "La zona direccional del barco.",
+                "correct": false
+              },
+              {
+                "text": "La parte bidireccional.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "La <strong>aleta</strong> es el tramo del costado situado hacia popa que converge hacia el espejo, cerrando el casco por su parte posterior.",
+              "Summary2": "La <strong>parte frontal de la línea de flotación</strong> corresponde a la proa, que es la zona delantera del barco y la que primero corta las olas al navegar.",
+              "Summary3": "La <strong>zona direccional del barco</strong> hace referencia al timón y la pala de gobierno, situados en popa y encargados de controlar el rumbo, no a la aleta.",
+              "Summary4": "La expresión <strong>parte bidireccional</strong> no se emplea en náutica para designar ninguna sección del casco, por lo que no describe ningún elemento estructural real."
+            }
+          }
+        ]
+      },
+      {
+        "id": "carta-navegacion",
+        "title": "11. Carta de navegación",
+        "description": "Aplicación práctica de la teoría en cartas náuticas. Permite medir rumbos, calcular distancias y situar la embarcación considerando corrientes, mareas y desvíos.",
+        "image": "assets/img/sailup-nomenclatura-nautica.jpg",
+        "items": [
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Terminología",
+            "Topic": "Adrizar",
+            "Type": "DEFINITION",
+            "Thumbnail": true,
+            "Thumbnail_url": "assets/img/sailup-nomenclatura-nautica.jpg",
+            "Question": "Una embarcación está adrizada cuando...",
+            "Options": [
+              {
+                "text": "No tiene escora.",
+                "correct": true
+              },
+              {
+                "text": "Está en varadero",
+                "correct": false
+              },
+              {
+                "text": "Apenas se mueve.",
+                "correct": false
+              },
+              {
+                "text": "Navega contra el viento.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "Una embarcación está <strong>adrizada</strong> cuando navega vertical y equilibrada, sin inclinación lateral respecto a la vertical; en otras palabras, sin escora.",
+              "Summary2": "Se dice que una embarcación <strong>está en varadero</strong> cuando ha sido sacada del agua y se encuentra en tierra, en un astillero o dique, para realizar trabajos de mantenimiento, reparación o invernaje.",
+              "Summary3": "En náutica, la expresión <strong>apenas se mueve</strong> indica que el barco lleva una arrancada muy pequeña o casi nula, es decir, prácticamente no avanza con respecto al agua.",
+              "Summary4": "Una embarcación <strong>navega contra el viento</strong> cuando avanza en dirección al viento o lo más cercano posible a él, lo que implica mayor resistencia y necesidad de ajustar el gobierno."
+            }
+          },
+          {
+            "Domain": "Nomenclatura náutica",
+            "Subdomain": "Casco",
+            "Topic": "Aleta",
+            "Type": "DEFINITION",
+            "Thumbnail": false,
+            "Thumbnail_url": "",
+            "Question": "Se denomina aleta a...",
+            "Options": [
+              {
+                "text": "La parte posterior del costado que converge y cierra el casco por detrás.",
+                "correct": true
+              },
+              {
+                "text": "Una parte frontal de la línea de flotación.",
+                "correct": false
+              },
+              {
+                "text": "La zona direccional del barco.",
+                "correct": false
+              },
+              {
+                "text": "La parte bidireccional.",
+                "correct": false
+              }
+            ],
+            "Summary": {
+              "Summary1": "La <strong>aleta</strong> es el tramo del costado situado hacia popa que converge hacia el espejo, cerrando el casco por su parte posterior.",
+              "Summary2": "La <strong>parte frontal de la línea de flotación</strong> corresponde a la proa, que es la zona delantera del barco y la que primero corta las olas al navegar.",
+              "Summary3": "La <strong>zona direccional del barco</strong> hace referencia al timón y la pala de gobierno, situados en popa y encargados de controlar el rumbo, no a la aleta.",
+              "Summary4": "La expresión <strong>parte bidireccional</strong> no se emplea en náutica para designar ninguna sección del casco, por lo que no describe ningún elemento estructural real."
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

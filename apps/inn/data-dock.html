@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SailUp Inn</title>
+  <link rel="icon" href="assets/img/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/inn.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+
+<body>
+  <!-- Header compartido -->
+  <div id="header-placeholder"></div>
+
+  <main class="chat">
+    <div class="messages">
+
+      <!-- Intro -->
+      <div class="msg">
+        <div class="msg-inner">
+          <h1 class="title">💾 Data Dock™</h1>
+          <p class="intro">
+            Como un muelle donde la carga se ordena antes de zarpar, aquí puedes transformar tu archivo Excel en un <strong>JSON estructurado</strong>, listo para salir a navegar. Sube tu archivo, supervisa la carga en la vista previa y descarga el resultado final para importarlo a SailUp.
+          </p>
+        </div>
+      </div>      
+
+      <!-- Upload -->
+      <div class="msg">
+        <div class="msg-inner">
+          <h2 class="title">📂 Subir archivo Excel</h2>
+          <form id="uploadForm" class="actions upload-group">
+            <label class="file-btn">
+              Seleccionar archivo
+              <input type="file" id="inputFile" accept=".xlsx" hidden />
+            </label>
+            <input type="text" id="fileName" class="file-name" placeholder="Ningún archivo seleccionado" readonly />
+            <!-- 🔹 ahora botón con id y desactivado por defecto -->
+            <button type="button" id="generateBtn" class="btn btn-primary" disabled onclick="generateJSON()">Generar JSON</button>
+          </form>
+          <!-- margen entre botones y error -->
+          <div id="error" class="error mt-block"></div>
+        </div>
+      </div>
+
+      <!-- JSON Preview -->
+      <div class="msg">
+        <div class="msg-inner">
+          <h2 class="title">📊 Vista previa JSON</h2>
+          <!-- margen entre título y preview -->
+          <div id="jsonPreview" class="preview-box empty mt-block">
+            <pre id="output"></pre>
+          </div>
+
+          <!-- botón de descarga alineado a la derecha -->
+          <div class="actions right mt-block">
+            <button class="btn btn-primary" onclick="downloadJSON()" id="downloadBtn" disabled>⬇️ Descargar JSON</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Script header compartido -->
+  <script src="/components/header.js"></script>
+
+  <script>
+    let workbook;
+    let generatedJSON = null;
+    let jsonFileName = "output.json";
+
+    const fileInput = document.getElementById("inputFile");
+    const fileName = document.getElementById("fileName");
+    const errorEl = document.getElementById("error");
+    const outputEl = document.getElementById("output");
+    const jsonPreview = document.getElementById("jsonPreview");
+    const generateBtn = document.getElementById("generateBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+
+    fileInput.addEventListener("change", handleFile, false);
+
+    function resetPreview() {
+      // Resetea preview y descarga
+      outputEl.textContent = "";
+      jsonPreview.classList.add("empty");
+      downloadBtn.disabled = true;
+      generatedJSON = null;
+    }
+
+    function handleFile(e) {
+      const file = e.target.files[0];
+
+      // Reseteos al seleccionar/deseleccionar archivo
+      errorEl.textContent = "";
+      resetPreview();
+      generateBtn.disabled = true;
+
+      if (!file) {
+        fileName.value = "Ningún archivo seleccionado";
+        workbook = null;
+        return;
+      }
+
+      fileName.value = file.name;
+      const baseName = file.name.replace(/\.[^/.]+$/, ""); 
+      jsonFileName = baseName + ".json";
+
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          const data = new Uint8Array(ev.target.result);
+          workbook = XLSX.read(data, { type: "array" });
+          // Si pudo leerse el workbook, habilitamos "Generar JSON"
+          generateBtn.disabled = false;
+        } catch (err) {
+          workbook = null;
+          errorEl.textContent = "❌ No se pudo leer el archivo. Verifica que sea un .xlsx válido.";
+          generateBtn.disabled = true;
+        }
+      };
+      reader.onerror = function() {
+        workbook = null;
+        errorEl.textContent = "❌ Error leyendo el archivo.";
+        generateBtn.disabled = true;
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function generateJSON() {
+      // Limpia estado de error y preview antes de generar
+      errorEl.textContent = "";
+      resetPreview();
+
+      if (!workbook) {
+        errorEl.textContent = "⚠️ Por favor, sube primero un archivo Excel.";
+        return;
+      }
+
+      const topicsSheet = XLSX.utils.sheet_to_json(workbook.Sheets["topics"]);
+      if (!topicsSheet.length) {
+        errorEl.textContent = "❌ No se encontró la hoja 'topics'.";
+        return;
+      }
+
+      const topicsList = [];
+
+      for (const topic of topicsSheet) {
+        const sheetName = topic.id_topic;
+        const sheet = workbook.Sheets[sheetName];
+
+        if (!sheet) {
+          errorEl.textContent = `❌ No existe la hoja para el topic '${sheetName}'.`;
+          return;
+        }
+
+        const questions = XLSX.utils.sheet_to_json(sheet);
+
+        const items = questions.map(q => ({
+          Domain: q.Domain,
+          Subdomain: q.Subdomain,
+          Topic: q.Topic,
+          Type: q.Type,
+          Thumbnail: Boolean(q.Thumbnail),
+          Thumbnail_url: q.Thumbnail_url || "",
+          Question: q.Question,
+          Options: [
+            { text: q.Option1_text, correct: true },
+            { text: q.Option2_text, correct: false },
+            { text: q.Option3_text, correct: false },
+            { text: q.Option4_text, correct: false }
+          ],
+          Summary: {
+            Summary1: q.Summary1,
+            Summary2: q.Summary2,
+            Summary3: q.Summary3,
+            Summary4: q.Summary4
+          }
+        }));
+
+        topicsList.push({
+          id: topic.id_topic,
+          title: topic.title_topic,
+          description: topic.description_topic,
+          image: topic.image_topic,
+          items
+        });
+      }
+
+      generatedJSON = { topics: { data: topicsList } };
+      outputEl.textContent = JSON.stringify(generatedJSON, null, 2);
+      jsonPreview.classList.remove("empty");  // hay datos
+      downloadBtn.disabled = false;           // habilita descarga
+    }
+
+    function downloadJSON() {
+      if (!generatedJSON) {
+        errorEl.textContent = "⚠️ Primero genera el JSON.";
+        return;
+      }
+      const blob = new Blob([JSON.stringify(generatedJSON, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = jsonFileName;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

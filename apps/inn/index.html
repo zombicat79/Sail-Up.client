@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SailUp Inn</title>
+  <link rel="icon" href="assets/img/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <!-- Header compartido -->
+  <div id="header-placeholder"></div>
+
+  <main class="chat">
+    <!-- Intro reutilizando el mismo componente de presentación -->
+    <section id="intro-section">
+      <article class="msg assistant">
+        <div class="msg-inner">
+          <h1 class="title">⚓️ SailUp Inn</h1>
+          <p class="intro">
+            Como la taberna de marineros donde circulan historias, mapas y noticias de ultramar, SailUp Inn es el punto de encuentro donde entra y sale la información que da vida a SailUp. Aquí recopilamos, organizamos y perfeccionamos datos y contenidos antes de enviarlos de regreso a bordo de la aplicación, listos para zarpar hacia los navegantes digitales.
+          </p>
+        </div>
+      </article>
+    </section>
+
+    <!-- Sección con las dos “feature cards” usando el mismo estilo de domain cards -->
+    <section id="dynamic-section">
+      <div class="unboxed-row">
+        <h2 class="title title-unboxed">Servicios disponibles</h2>
+      </div>
+
+
+            <!-- Reutilizamos el grid y las cards de dominios -->
+            <div class="domains-grid">
+
+              <!-- Card: AI Dock -->
+              <button type="button" class="domain-card" onclick="location.href='/inn/ai-dock'">
+                <div class="domain-head">
+                  <div class="domain-title">🤖 AI Dock™</div>
+                </div>
+                <p class="domain-desc">
+                   Selecciona un archivo Excel, elige un prompt, edítalo si lo necesitas y procesa tus datos con un solo clic.
+                </p>
+                <p>
+                  <img class="domain-img" src="assets/img/sailup-ai-dock-thumbnail.jpg" alt="AI Dock">
+                </p>
+              </button>
+
+              <!-- Card: Data Dock -->
+              <button type="button" class="domain-card" onclick="location.href='inn/data-dock'">
+                <div class="domain-head">
+                  <div class="domain-title">💾 Data Dock™</div>
+                </div>
+                <p class="domain-desc">
+                  Sube tu archivo, genera una vista previa y descarga el resultado en formato JSON para importarlo a SailUp.
+                </p>
+                </p>
+                <p>
+                  <img class="domain-img" src="assets/img/sailup-data-dock-thumbnail.jpg" alt="Data Dock">
+                </p>
+              </button>
+
+            </div>
+
+    </section>
+  </main>
+
+  <!-- Header JS -->
+  <script src="/components/header.js"></script>
+</body>
+</html>
