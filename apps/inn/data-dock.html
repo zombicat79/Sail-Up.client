@@ -15,199 +15,228 @@
   <div id="header-placeholder"></div>
 
   <main class="chat">
-    <div class="messages">
-
-      <!-- Intro -->
-      <div class="msg">
+    <!-- Intro fija -->
+    <section id="intro-section">
+      <article class="msg assistant">
         <div class="msg-inner">
-          <h1 class="title">💾 Data Dock™</h1>
+          <h1 class="title">📦 Data Dock™</h1>
           <p class="intro">
-            Como un muelle donde la carga se ordena antes de zarpar, aquí puedes transformar tu archivo Excel en un <strong>JSON estructurado</strong>, listo para salir a navegar. Sube tu archivo, supervisa la carga en la vista previa y descarga el resultado final para importarlo a SailUp.
+            En este muelle la carga se acumula, se inspecciona, manipula y se distribuye. Aquí podrás visualizar y editar datos, crear nuevos cursos, añadir temario, preguntas y todo lo que necesitas para nutrir a SailUp de contenido y asegurarte de que la información llega a buen puerto. Es el lugar más concurrido y verdadero centro económico de SailUp.
           </p>
         </div>
-      </div>      
+      </article>
+    </section>
 
-      <!-- Upload -->
-      <div class="msg">
+    <!-- Fuente de datos (idéntico a AI Dock / Prompts) -->
+    <section id="data-source-section">
+      <article class="msg">
         <div class="msg-inner">
-          <h2 class="title">📂 Subir archivo Excel</h2>
-          <form id="uploadForm" class="actions upload-group">
-            <label class="file-btn">
-              Seleccionar archivo
-              <input type="file" id="inputFile" accept=".xlsx" hidden />
+          <h2 class="title">📚 Fuente de datos</h2>
+          <p class="intro">Selecciona la base de datos del título o curso que desees inspeccionar.</p>
+          <div class="prompt-controls actions" style="justify-content:flex-start; width:100%;">
+            <select id="promptSelect" title="Seleccionar base de datos" style="flex:1; min-width:280px;">
+              <option value="" disabled selected>Seleccionar base de datos</option>
+            </select>
+            <button id="applySourceBtn" class="btn btn-primary">Cargar</button>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- Menú de subservicios (estilo tabs) -->
+    <nav class="nav" id="data-dock-menu">
+      <a class="tab active" href="#dashboard" data-tab="dashboard">Dashboard</a>
+      <a class="tab" href="#syllabus" data-tab="syllabus">Temario</a>
+      <a class="tab" href="#subdomains" data-tab="subdomains">Materias</a>
+      <a class="tab" href="#editor" data-tab="editor">Preguntas</a>
+    </nav>
+
+    <!-- Secciones dinámicas -->
+
+    <!-- Dashboard section -->
+    <section id="dashboard-section" class="section">
+      <!-- Grid de métricas (4 columnas) -->
+      <div class="domains-grid domains-grid-4">
+
+        <!-- Temas (topics[].id) -->
+        <article class="domain-card is-static" aria-live="polite">
+          <div class="domain-head"><div class="domain-title">Temas</div></div>
+          <div id="metric-total-topics" style="font-size:2.2rem; font-weight:800;">—</div>
+        </article>
+
+        <!-- Subtemas (únicos por Subdomain) -->
+        <article class="domain-card is-static" aria-live="polite">
+          <div class="domain-head"><div class="domain-title">Subtemas</div></div>
+          <div id="metric-total-subtemas" style="font-size:2.2rem; font-weight:800;">—</div>
+        </article>
+
+        <!-- Tópicos (únicos por Topic) -->
+        <article class="domain-card is-static" aria-live="polite">
+          <div class="domain-head"><div class="domain-title">Tópicos</div></div>
+          <div id="metric-total-topicos" style="font-size:2.2rem; font-weight:800;">—</div>
+        </article>
+
+        <!-- Preguntas -->
+        <article class="domain-card is-static" aria-live="polite">
+          <div class="domain-head"><div class="domain-title">Preguntas</div></div>
+          <div id="metric-total-questions" style="font-size:2.2rem; font-weight:800;">—</div>
+        </article>
+
+      </div>
+
+      <!-- Segunda fila: 2 columnas con donuts -->
+      <div class="domains-grid domains-grid-2 mt-block">
+
+        <!-- Donut: Tópicos por tema -->
+        <article class="domain-card is-static">
+          <div class="domain-head">
+            <div class="domain-title">Tópicos por tema</div>
+          </div>
+          <div class="chart-box">
+            <div id="donut-topicos" class="donut"></div>
+            <div id="legend-topicos" class="chart-legend"></div>
+          </div>
+        </article>
+
+        <!-- Donut: Preguntas por tema -->
+        <article class="domain-card is-static">
+          <div class="domain-head">
+            <div class="domain-title">Preguntas por tema</div>
+          </div>
+          <div class="chart-box">
+            <div id="donut-preguntas" class="donut"></div>
+            <div id="legend-preguntas" class="chart-legend"></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Syllabus section -->
+    <section id="syllabus-section" class="section" hidden>
+      <!-- Lista de domains -->
+      <div id="domainsBlock" class="stack-16">
+        <div id="domains-list" role="list" class="stack-16"></div>
+
+        <button id="btn-add-domain" class="btn btn-primary w-full">
+          ➕ Añadir tema
+        </button>
+      </div>
+      
+
+      <!-- Panel de edición de domain -->
+      <article class="msg" id="editor-card" hidden>
+        <div class="msg-inner">
+          <h3 class="title" style="margin-bottom:8px;">Editar tema</h3>
+
+          <div class="form-grid" style="display:grid; gap:12px;">
+            <label class="field">
+              <span class="label">Domain / Title *</span>
+              <input id="fld-domain-title" type="text" placeholder="Ej. Nomenclatura náutica" />
+              <small class="muted">Al guardar, <code>domain</code> y <code>title</code> se sincronizan.</small>
             </label>
-            <input type="text" id="fileName" class="file-name" placeholder="Ningún archivo seleccionado" readonly />
-            <!-- 🔹 ahora botón con id y desactivado por defecto -->
-            <button type="button" id="generateBtn" class="btn btn-primary" disabled onclick="generateJSON()">Generar JSON</button>
-          </form>
-          <!-- margen entre botones y error -->
-          <div id="error" class="error mt-block"></div>
-        </div>
-      </div>
 
-      <!-- JSON Preview -->
-      <div class="msg">
+            <label class="field">
+              <span class="label">Domain ID</span>
+              <input id="fld-domain-id" type="text" placeholder="p.ej. nomenclatura" />
+              <small class="muted">Usado para emparejar con Excel. Sin espacios; usa guiones.</small>
+            </label>
+
+            <label class="field">
+              <span class="label">Descripción</span>
+              <textarea id="fld-description" rows="3" placeholder="Breve descripción del domain"></textarea>
+            </label>
+
+            <label class="field">
+              <span class="label">Imagen (URL)</span>
+              <input id="fld-image" type="text" placeholder="https://..." />
+            </label>
+          </div>
+
+          <hr class="divider" style="margin:16px 0;" />
+
+          <h4 class="q-title" style="margin: 6px 0 8px;">Subdomains</h4>
+          <div id="subdomains-list" role="list" style="display:flex; flex-direction:column; gap:8px;"></div>
+
+          <button id="btn-add-subdomain" class="btn w-full" style="margin-top:12px;">
+            ➕ Añadir subdomain
+          </button>
+
+          <hr class="divider" style="margin:16px 0;" />
+
+          <div class="actions" style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button id="btn-save-domain" class="btn btn-primary">💾 Guardar cambios</button>
+            <button id="btn-delete-domain" class="btn err">🗑️ Eliminar tema</button>
+            <button id="btn-close-editor" class="btn">✖️ Cerrar editor</button>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- Subdomains (Materias) section -->
+    <section id="subdomains-section" class="section" hidden>
+      <!-- Caja de selección de Domain -->
+      <article class="msg">
         <div class="msg-inner">
-          <h2 class="title">📊 Vista previa JSON</h2>
-          <!-- margen entre título y preview -->
-          <div id="jsonPreview" class="preview-box empty mt-block">
-            <pre id="output"></pre>
-          </div>
+          <h2 class="title">Materias</h2>
+          <p class="intro">Selecciona un <strong>tema</strong> (Domain) para ver y editar sus materias (Subdomains) y sus tópicos.</p>
 
-          <!-- botón de descarga alineado a la derecha -->
-          <div class="actions right mt-block">
-            <button class="btn btn-primary" onclick="downloadJSON()" id="downloadBtn" disabled>⬇️ Descargar JSON</button>
+          <div class="actions" id="subd-controls">
+            <select id="subdDomain" class="ds-select" title="Seleccionar Domain" disabled>
+              <option value="" disabled selected>Selecciona Domain</option>
+            </select>
+            <button id="subdLoad" class="btn btn-primary" disabled>Cargar</button>
           </div>
         </div>
-      </div>
+      </article>
 
-    </div>
+
+      <!-- Bloque de materias: oculto hasta cargar un Domain -->
+      <div id="subdBlock" class="stack-16" hidden>
+        <h3 class="title" style="margin-bottom:8px;">Listado de materias del domain</h3>
+        <div id="subdList" role="list" class="stack-16"></div>
+        <button id="subdAdd" class="btn btn-primary w-full" disabled>
+          ➕ Añadir materia
+        </button>
+      </div>
+      </article>
+    </section>
+
+
+
+    <!-- Editor section -->
+    <section id="editor-section" class="section" hidden>
+      <article class="msg">
+        <div class="msg-inner">
+          <h2 class="title">Opciones</h2>
+          <!-- Controles: selects en cascada -->
+          <div class="actions" id="editor-controls">
+            <select id="editorDomain" class="ds-select">
+              <option value="" disabled selected>Selecciona Domain</option>
+            </select>
+            <select id="editorSubdomain" class="ds-select" disabled>
+              <option value="" disabled selected>Selecciona Subdomain</option>
+            </select>
+            <select id="editorTopic" class="ds-select" disabled>
+              <option value="" disabled selected>Selecciona Topic</option>
+            </select>
+            <button id="editorLoad" class="btn btn-primary" disabled>Cargar</button>
+            <button id="editorAdd" class="btn" disabled>➕ Nueva pregunta</button> <!-- NUEVO -->
+          </div>
+        </div>
+      </article>
+
+      <!-- Lista de preguntas (cada pregunta ya es una tarjeta .msg) -->
+      <div id="editorList" class="mt-block section"></div>
+    </section>
   </main>
 
-  <!-- Script header compartido -->
+  <!-- Scripts -->
   <script src="/components/header.js"></script>
-
-  <script>
-    let workbook;
-    let generatedJSON = null;
-    let jsonFileName = "output.json";
-
-    const fileInput = document.getElementById("inputFile");
-    const fileName = document.getElementById("fileName");
-    const errorEl = document.getElementById("error");
-    const outputEl = document.getElementById("output");
-    const jsonPreview = document.getElementById("jsonPreview");
-    const generateBtn = document.getElementById("generateBtn");
-    const downloadBtn = document.getElementById("downloadBtn");
-
-    fileInput.addEventListener("change", handleFile, false);
-
-    function resetPreview() {
-      // Resetea preview y descarga
-      outputEl.textContent = "";
-      jsonPreview.classList.add("empty");
-      downloadBtn.disabled = true;
-      generatedJSON = null;
-    }
-
-    function handleFile(e) {
-      const file = e.target.files[0];
-
-      // Reseteos al seleccionar/deseleccionar archivo
-      errorEl.textContent = "";
-      resetPreview();
-      generateBtn.disabled = true;
-
-      if (!file) {
-        fileName.value = "Ningún archivo seleccionado";
-        workbook = null;
-        return;
-      }
-
-      fileName.value = file.name;
-      const baseName = file.name.replace(/\.[^/.]+$/, ""); 
-      jsonFileName = baseName + ".json";
-
-      const reader = new FileReader();
-      reader.onload = function(ev) {
-        try {
-          const data = new Uint8Array(ev.target.result);
-          workbook = XLSX.read(data, { type: "array" });
-          // Si pudo leerse el workbook, habilitamos "Generar JSON"
-          generateBtn.disabled = false;
-        } catch (err) {
-          workbook = null;
-          errorEl.textContent = "❌ No se pudo leer el archivo. Verifica que sea un .xlsx válido.";
-          generateBtn.disabled = true;
-        }
-      };
-      reader.onerror = function() {
-        workbook = null;
-        errorEl.textContent = "❌ Error leyendo el archivo.";
-        generateBtn.disabled = true;
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    function generateJSON() {
-      // Limpia estado de error y preview antes de generar
-      errorEl.textContent = "";
-      resetPreview();
-
-      if (!workbook) {
-        errorEl.textContent = "⚠️ Por favor, sube primero un archivo Excel.";
-        return;
-      }
-
-      const topicsSheet = XLSX.utils.sheet_to_json(workbook.Sheets["topics"]);
-      if (!topicsSheet.length) {
-        errorEl.textContent = "❌ No se encontró la hoja 'topics'.";
-        return;
-      }
-
-      const topicsList = [];
-
-      for (const topic of topicsSheet) {
-        const sheetName = topic.id_topic;
-        const sheet = workbook.Sheets[sheetName];
-
-        if (!sheet) {
-          errorEl.textContent = `❌ No existe la hoja para el topic '${sheetName}'.`;
-          return;
-        }
-
-        const questions = XLSX.utils.sheet_to_json(sheet);
-
-        const items = questions.map(q => ({
-          Domain: q.Domain,
-          Subdomain: q.Subdomain,
-          Topic: q.Topic,
-          Type: q.Type,
-          Thumbnail: Boolean(q.Thumbnail),
-          Thumbnail_url: q.Thumbnail_url || "",
-          Question: q.Question,
-          Options: [
-            { text: q.Option1_text, correct: true },
-            { text: q.Option2_text, correct: false },
-            { text: q.Option3_text, correct: false },
-            { text: q.Option4_text, correct: false }
-          ],
-          Summary: {
-            Summary1: q.Summary1,
-            Summary2: q.Summary2,
-            Summary3: q.Summary3,
-            Summary4: q.Summary4
-          }
-        }));
-
-        topicsList.push({
-          id: topic.id_topic,
-          title: topic.title_topic,
-          description: topic.description_topic,
-          image: topic.image_topic,
-          items
-        });
-      }
-
-      generatedJSON = { topics: { data: topicsList } };
-      outputEl.textContent = JSON.stringify(generatedJSON, null, 2);
-      jsonPreview.classList.remove("empty");  // hay datos
-      downloadBtn.disabled = false;           // habilita descarga
-    }
-
-    function downloadJSON() {
-      if (!generatedJSON) {
-        errorEl.textContent = "⚠️ Primero genera el JSON.";
-        return;
-      }
-      const blob = new Blob([JSON.stringify(generatedJSON, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = jsonFileName;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-  </script>
+  <script type="module" src="/data-dock/js/data-dock-core.js"></script>
+  <script type="module" src="/data-dock/js/data-dock-dashboard.js"></script>
+  <script type="module" src="/data-dock/js/data-dock-editor.js"></script>
+  <script type="module" src="/data-dock/js/data-dock-tabs.js"></script>
+  <script type="module" src="/data-dock/js/data-dock-domains.js"></script>
+  <script type="module" src="/data-dock/js/data-dock-subdomains.js"></script>
 </body>
 </html>

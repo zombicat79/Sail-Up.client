@@ -1,0 +1,318 @@
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>SailUp Inn</title>
+      <link rel="icon" href="assets/img/favicon.ico" type="image/x-icon">
+      <link rel="stylesheet" href="/css/styles.css">
+      <link rel="stylesheet" href="/css/inn.css">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    </head>
+
+    <body>
+      <!-- Header compartido -->
+      <div id="header-placeholder"></div>
+
+      <main class="chat">
+        <!-- Intro -->
+        <div class="msg">
+          <div class="msg-inner">
+            <h1 class="title">📜 Captain JSON™</h1>
+            <p class="intro">
+              En el bureau del Capitán JSON, la tripulación inspecciona cada carga para asegurar que todo esté en orden antes de zarpar. Aquí tu archivo Excel se convierte en un JSON estructurado, revisado y listo para navegar. Supervisa el cargamento en la vista previa y descarga el resultado final para importarlo a SailUp.
+            </p>
+          </div>
+        </div>
+
+        <!-- Upload -->
+        <div class="msg">
+          <div class="msg-inner">
+            <h2 class="title">📂 Subir archivo Excel</h2>
+            <form id="uploadForm" class="actions upload-group">
+              <label class="file-btn">
+                Seleccionar archivo
+                <input type="file" id="inputFile" accept=".xlsx" hidden />
+              </label>
+              <input type="text" id="fileName" class="file-name" placeholder="Ningún archivo seleccionado" readonly />
+              <button type="button" id="generateBtn" class="btn btn-primary" disabled>Generar JSON</button>
+            </form>
+            <div id="error" class="error mt-block"></div>
+          </div>
+        </div>
+
+        <!-- JSON Preview -->
+        <div class="msg">
+          <div class="msg-inner">
+            <h2 class="title">📊 Vista previa JSON</h2>
+            <div id="jsonPreview" class="preview-box empty mt-block">
+              <pre id="output"></pre>
+            </div>
+            <div class="actions right mt-block">
+              <button class="btn btn-primary" id="downloadBtn" disabled>⬇️ Descargar JSON</button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <script src="/components/header.js"></script>
+
+      <script>
+        let workbook;
+        let generatedJSON = null;
+        let jsonFileName = "output.json";
+
+        const fileInput   = document.getElementById("inputFile");
+        const fileNameEl  = document.getElementById("fileName");
+        const errorEl     = document.getElementById("error");
+        const outputEl    = document.getElementById("output");
+        const jsonPreview = document.getElementById("jsonPreview");
+        const generateBtn = document.getElementById("generateBtn");
+        const downloadBtn = document.getElementById("downloadBtn");
+
+        fileInput.addEventListener("change", handleFile, false);
+        generateBtn.addEventListener("click", onGenerate);
+        downloadBtn.addEventListener("click", downloadJSON);
+
+        function resetPreview() {
+          outputEl.textContent = "";
+          jsonPreview.classList.add("empty");
+          downloadBtn.disabled = true;
+          generatedJSON = null;
+        }
+
+        function handleFile(e) {
+          const file = e.target.files[0];
+          errorEl.textContent = "";
+          resetPreview();
+          generateBtn.disabled = true;
+
+          if (!file) {
+            fileNameEl.value = "Ningún archivo seleccionado";
+            workbook = null;
+            return;
+          }
+
+          fileNameEl.value = file.name;
+          const baseName = file.name.replace(/\.[^/.]+$/, "");
+          jsonFileName = baseName + ".json";
+
+          const reader = new FileReader();
+          reader.onload = function(ev) {
+            try {
+              const data = new Uint8Array(ev.target.result);
+              workbook = XLSX.read(data, { type: "array" });
+              generateBtn.disabled = false;
+            } catch (err) {
+              workbook = null;
+              errorEl.textContent = "❌ No se pudo leer el archivo. Verifica que sea un .xlsx válido.";
+              generateBtn.disabled = true;
+            }
+          };
+          reader.onerror = function() {
+            workbook = null;
+            errorEl.textContent = "❌ Error leyendo el archivo.";
+            generateBtn.disabled = true;
+          };
+          reader.readAsArrayBuffer(file);
+        }
+
+        function onGenerate() {
+          errorEl.textContent = "";
+          resetPreview();
+          if (!workbook) {
+            errorEl.textContent = "⚠️ Por favor, sube primero un archivo Excel.";
+            return;
+          }
+          try {
+            generatedJSON = buildJsonFromWorkbook(workbook);
+            outputEl.textContent = JSON.stringify(generatedJSON, null, 2);
+            jsonPreview.classList.remove("empty");
+            downloadBtn.disabled = false;
+          } catch (e) {
+            console.error(e);
+            errorEl.textContent = "❌ " + (e.message || "Error generando el JSON.");
+          }
+        }
+
+        function downloadJSON() {
+          if (!generatedJSON) {
+            errorEl.textContent = "⚠️ Primero genera el JSON.";
+            return;
+          }
+          const blob = new Blob([JSON.stringify(generatedJSON, null, 2)], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = jsonFileName;
+          a.click();
+          URL.revokeObjectURL(url);
+        }
+
+        /* ============================
+           Conversión XLSX → JSON nuevo
+           ============================ */
+
+        const STR = v => (v == null ? "" : String(v).trim());
+        const BOOL = v => {
+          const s = STR(v).toLowerCase();
+          if (!s) return false;
+          return ["1","true","sí","si","y","yes","x"].includes(s);
+        };
+
+        function readSheet(ws, opts = {}) {
+          if (!ws) return [];
+          return XLSX.utils.sheet_to_json(ws, { defval: "", raw: false, ...opts });
+        }
+
+        function buildJsonFromWorkbook(wb) {
+      // 1) SYLLABUS (una fila)
+          const syllabusRows = readSheet(wb.Sheets["syllabus"]);
+          if (!syllabusRows.length) throw new Error("Falta la hoja 'syllabus'.");
+          const s0 = syllabusRows[0] || {};
+          const syllabus = {
+            course:            STR(s0["course"]),
+            "course-overview": STR(s0["course-overview"]),
+            "course-image":    STR(s0["course-image"]),
+            scope:             STR(s0["scope"]),
+            language:          STR(s0["language"]),
+            domains: []
+          };
+
+      // 2) DOMAINS: catálogo con meta y orden
+          const domainsRows = readSheet(wb.Sheets["domains"]);
+      const domainCatalog = new Map(); // domain-id -> meta
+      const domainOrder   = [];        // orden tal cual aparece en la hoja 'domains'
+      for (const r of domainsRows) {
+        const id = STR(r["domain-id"]);
+        if (!id) continue;
+        domainCatalog.set(id, {
+          "domain-id": id,
+          domain:            STR(r["domain"]),
+          "domain-overview": STR(r["domain-overview"]),
+          "domain-image":    STR(r["domain-image"])
+        });
+        domainOrder.push(id);
+      }
+
+      // 3) AGRUPACIÓN por hoja (el nombre de la hoja ES el domain-id)
+      const IGNORE = new Set(["syllabus", "domains"]);
+      const grouped = new Map(); // domainId -> subdomain -> topic -> items[]
+
+      const sheetNames = wb.SheetNames.filter(n => !IGNORE.has(n));
+      if (!sheetNames.length) {
+        throw new Error("No se encontraron hojas de preguntas (además de 'syllabus' y 'domains').");
+      }
+
+      for (const sheetName of sheetNames) {
+        const domainId = STR(sheetName);
+        const rows = readSheet(wb.Sheets[sheetName]);
+
+        for (const r of rows) {
+          const subdomain = STR(r["subdomain"]);
+          const topic     = STR(r["topic"]);
+
+          // 🔹 Aquí es donde puedes validar el domain-id de la fila
+          const rowDomainId = STR(r["domain-id"]);
+          if (rowDomainId && rowDomainId !== domainId) {
+            console.warn(`Fila con domain-id=${rowDomainId} en hoja ${domainId}: se ignora y se usa ${domainId}.`);
+          }
+
+          // Campos de pregunta
+          const item = {
+            Type: STR(r["type"]) || "DEFINITION",
+            "question-image":     BOOL(r["question-image"]),
+            "question-image-url": STR(r["question-image-url"]),
+            question:             STR(r["question"]),
+            
+            options: [
+              { "option1-text": STR(r["option1-text"]), "option1-correct": true },
+              { "option2-text": STR(r["option2-text"]), "option2-correct": false },
+              { "option3-text": STR(r["option3-text"]), "option3-correct": false },
+              { "option4-text": STR(r["option4-text"]), "option4-correct": false }
+            ],
+
+            summary: {
+              "summary1": STR(r["summary1"]),
+              "summary2": STR(r["summary2"]),
+              "summary3": STR(r["summary3"]),
+              "summary4": STR(r["summary4"])
+            }
+          };
+
+          // Filtra filas vacías: sin pregunta y sin ninguna opción con texto
+          const hasQ = item.question.length > 0;
+          const hasAnyOpt =
+          STR(item.options[0]["option1-text"]).length ||
+          STR(item.options[1]["option2-text"]).length ||
+          STR(item.options[2]["option3-text"]).length ||
+          STR(item.options[3]["option4-text"]).length;
+          if (!subdomain || !topic || (!hasQ && !hasAnyOpt)) continue;
+
+          // Inserción en la estructura
+          if (!grouped.has(domainId)) grouped.set(domainId, new Map());
+          const subMap = grouped.get(domainId);
+          if (!subMap.has(subdomain)) subMap.set(subdomain, new Map());
+          const topicMap = subMap.get(subdomain);
+          if (!topicMap.has(topic)) topicMap.set(topic, []);
+          topicMap.get(topic).push(item);
+
+          // Si el dominio de esta hoja no está en el catálogo, crear meta mínima
+          if (!domainCatalog.has(domainId)) {
+            // Nombre “bonito” si no hay 'domain' en la hoja domains
+            const pretty = domainId.replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim();
+            const titled = pretty.charAt(0).toUpperCase() + pretty.slice(1);
+            domainCatalog.set(domainId, {
+              "domain-id": domainId,
+              domain: titled,
+              "domain-overview": "",
+              "domain-image": ""
+            });
+            domainOrder.push(domainId);
+          }
+        }
+      }
+
+      // 4) Construir syllabus.domains siguiendo el orden de 'domains' y luego extras
+      const domainsOut = [];
+      const emitted = new Set();
+
+      function emitDomain(id) {
+        if (emitted.has(id)) return;
+        const meta = domainCatalog.get(id);
+        if (!meta) return;
+
+        const subdomainsOut = [];
+        const subMap = grouped.get(id);
+        if (subMap) {
+          const subNames = Array.from(subMap.keys()).sort((a,b)=>a.localeCompare(b,"es"));
+          for (const sName of subNames) {
+            const topicMap = subMap.get(sName);
+            const topicNames = Array.from(topicMap.keys()).sort((a,b)=>a.localeCompare(b,"es"));
+            subdomainsOut.push({
+              subdomain: sName,
+              topics: topicNames.map(tName => ({ topic: tName, items: topicMap.get(tName) || [] }))
+            });
+          }
+        }
+
+        domainsOut.push({
+          "domain-id": meta["domain-id"],
+          domain: meta.domain,
+          "domain-overview": meta["domain-overview"],
+          "domain-image": meta["domain-image"],
+          subdomains: subdomainsOut
+        });
+        emitted.add(id);
+      }
+
+      domainOrder.forEach(emitDomain);           // primero, orden catálogo
+      Array.from(grouped.keys()).forEach(emitDomain); // después, dominios solo presentes en preguntas
+
+      syllabus.domains = domainsOut;
+      return { syllabus };
+    }
+
+  </script>
+</body>
+</html>

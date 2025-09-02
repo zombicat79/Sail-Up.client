@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SailUp Inn</title>
+  <link rel="icon" href="assets/img/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/inn.css" />
+</head>
+<body>
+  <!-- Header compartido -->
+  <div id="header-placeholder"></div>
+
+  <main class="chat">
+
+
+      <!-- Intro -->
+      <div class="msg">
+        <div class="msg-inner">
+          <h1 class="title">🏴‍☠️ Pirate Cave™</h1>
+          <p class="intro">
+            La cueva de los piratas es el lugar donde se trafica con información, el verdadero tesoro de SailUp. Aquí puedes introducir un PDF del temario o preguntas y descomponerlo en  un JSON estructurado. Lo que hagas con ello, es cosa tuya.
+          </p>
+        </div>
+      </div>
+
+      <!-- Upload PDF -->
+      <div class="msg">
+        <div class="msg-inner">
+          <h2 class="title">📄 Subir PDF del temario</h2>
+          <form id="uploadForm" class="actions upload-group">
+            <label class="file-btn">
+              Seleccionar PDF
+              <input type="file" id="inputFile" accept="application/pdf,.pdf" hidden />
+            </label>
+            <input type="text" id="fileName" class="file-name" placeholder="Ningún archivo seleccionado" readonly />
+            <button type="button" id="importBtn" class="btn btn-primary" disabled>Importar</button>
+          </form>
+          <div id="error" class="error mt-block"></div>
+        </div>
+      </div>
+
+      <!-- Preview JSON -->
+      <div class="msg">
+        <div class="msg-inner">
+          <h2 class="title">📊 Vista previa JSON</h2>
+          <div id="jsonPreview" class="preview-box empty mt-block">
+            <pre id="output"></pre>
+          </div>
+          <div class="actions right mt-block">
+            <a id="downloadLink" class="btn btn-primary" href="#" download style="display:none;">⬇️ Descargar JSON</a>
+          </div>
+        </div>
+      </div>
+
+
+  </main>
+
+  <!-- Header compartido -->
+  <script src="/components/header.js"></script>
+
+  <script>
+    const $ = (s) => document.querySelector(s);
+    const inputFile = $("#inputFile");
+    const fileName = $("#fileName");
+    const importBtn = $("#importBtn");
+    const errorEl = $("#error");
+    const outputEl = $("#output");
+    const jsonPreview = $("#jsonPreview");
+    const downloadLink = $("#downloadLink");
+
+    let selectedFile = null;
+    let lastFilename = null;
+
+    inputFile.addEventListener("change", () => {
+      errorEl.textContent = "";
+      outputEl.textContent = "";
+      jsonPreview.classList.add("empty");
+      downloadLink.style.display = "none";
+      downloadLink.removeAttribute("href");
+      lastFilename = null;
+
+      selectedFile = inputFile.files[0] || null;
+      fileName.value = selectedFile ? selectedFile.name : "Ningún archivo seleccionado";
+      importBtn.disabled = !selectedFile;
+    });
+
+    importBtn.addEventListener("click", async () => {
+      try {
+        if (!selectedFile) {
+          errorEl.textContent = "⚠️ Selecciona un PDF primero.";
+          return;
+        }
+        errorEl.textContent = "⏳ Importando PDF…";
+        outputEl.textContent = "";
+        jsonPreview.classList.add("empty");
+        downloadLink.style.display = "none";
+
+        const form = new FormData();
+        form.append("file", selectedFile);
+
+        const resp = await fetch("/pirate-cave/pdf", { method: "POST", body: form });
+        if (!resp.ok) throw new Error("Error procesando el PDF.");
+        const data = await resp.json();
+
+        errorEl.textContent = "";
+        lastFilename = data.filename;
+
+        const downloadResp = await fetch(`/pirate-cave/download/${encodeURIComponent(lastFilename)}`);
+        if (!downloadResp.ok) throw new Error("No se pudo cargar el JSON generado.");
+        const jsonText = await downloadResp.text();
+
+        outputEl.textContent = jsonText;
+        jsonPreview.classList.remove("empty");
+
+        downloadLink.href = `/pirate-cave/download/${encodeURIComponent(lastFilename)}`;
+        downloadLink.download = lastFilename;
+        downloadLink.style.display = "inline-flex";
+      } catch (e) {
+        console.error(e);
+        errorEl.textContent = "❌ No se pudo importar el PDF.";
+      }
+    });
+  </script>
+</body>
+</html>

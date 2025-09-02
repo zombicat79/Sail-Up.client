@@ -1,5 +1,5 @@
 {
-  "name": "sailup-bo",
+  "name": "sailup",
   "version": "1.0.0",
   "description": "",
   "type": "module",
@@ -16,6 +16,7 @@
     "express": "^5.1.0",
     "multer": "^2.0.2",
     "openai": "^5.15.0",
+    "pdfjs-dist": "^5.4.54",
     "xlsx": "^0.18.5"
   }
 }

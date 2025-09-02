@@ -20,6 +20,8 @@ body { margin: 0; }
   --shadow: 0 8px 24px rgba(0,0,0,.35);
   --radius: 14px;
   --control-height: 44px;
+  --text-light:#cfd3de;     /* usado por .topbar .nav .tab */
+  --panel-1:#1a1b20;        /* usado por .topbar .nav .tab.active */
   color-scheme: dark;
 }
 
@@ -52,20 +54,20 @@ body {
 }
 .topbar .nav .tab:hover { background: var(--panel-2); color: var(--accent); }
 .topbar .nav .tab.active {
-  background: var(--panel-1);
+  background: var(--panel-2);
   color: var(--accent);
   font-weight: 500;
 }
 
 /* === Layout base de la app === */
-.chat { display: flex; flex-direction: column; align-items: center; padding: 24px }
-.messages {
-  width: 100%;
-  max-width: 860px;
+.chat {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin: 0 auto; /* centrado + separación inferior */
+  margin: 0 auto;
+  padding: 24px;
+  width: 100%;
+  max-width: 1024px;
 }
 /* Asegura que cada tarjeta ocupe todo el ancho del contenedor */
 .messages > .msg { width: 100%; }
@@ -79,19 +81,16 @@ body {
 
 /* === Secciones principales (intro fija + contenido dinámico) ===*/
 #intro-section {
-  margin-bottom: 20px;
   width: 100%;
   display: flex;
   justify-content: center;
 }
 #intro-section .msg {
   width: 100%;
-  max-width: 860px; /* mismo límite que .messages */
 }
 #dynamic-section {
   margin-top: 10px; /* ligera separación adicional por claridad */
   width:100%;
-  max-width: 860px;
 }
 
 /* === Títulos reutilizables === */
@@ -112,7 +111,6 @@ h1.q-title, h1.title { font-size: 1.6rem; line-height: 1.4; }
 /* === Quiz meta === */
 .quiz-meta {
   width: 100%;
-  max-width: 860px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -160,6 +158,8 @@ h1.q-title, h1.title { font-size: 1.6rem; line-height: 1.4; }
   color: var(--text);
 }
 .domain-card:hover { border-color: #3a3d48; transform: translateY(-1px); }
+.domain-card.is-static { cursor: default; }
+.domain-card.is-static:hover { border-color: var(--border); transform: none; }
 .domain-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 6px; }
 .domain-title { font-weight: 700; font-size: 1.25rem; }
 .domain-desc { color: #c9ced9; margin: 6px 0 10px; font-size: 0.9rem; line-height: 1.5; }
@@ -237,19 +237,30 @@ h1.q-title, h1.title { font-size: 1.6rem; line-height: 1.4; }
 .file-btn:hover { border-color: #3a3d48; }
 .file-name { flex: 1; background: var(--panel-2); cursor: default; }
 
-/* === Controles unificados (botones, inputs) === */
-.btn, .file-btn, #promptSelect, .file-name {
-  height: var(--control-height); padding: 0 16px;
-  border: 1px solid var(--border); border-radius: 10px;
-  background: var(--panel-2); color: var(--text);
-  font-size: 0.95rem; display: flex; align-items: center;
+/* === Controles unificados (botones, inputs, selects) === */
+.btn, .file-btn, #promptSelect, .file-name, .ds-select {
+  height: var(--control-height);
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
 }
-.btn { cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease; }
+.btn { cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease; flex: 0 0 auto; white-space:nowrap; }
 .btn:hover { border-color: #3a3d48; }
 .btn-primary { background: linear-gradient(180deg, #2563eb, #1d4ed8); border-color: #2563eb; color: #fff; font-weight: 600; }
 .btn-primary:hover { background: linear-gradient(180deg, #1d4ed8, #2563eb); border-color: #2563eb; }
-#promptSelect { min-width: 220px; appearance: none; -webkit-appearance: none; -moz-appearance: none; }
-#promptSelect:hover { border-color: #3a3d48; }
+
+#promptSelect, .ds-select {
+  min-width: 200px;
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  width: 100%;
+}
+#promptSelect:hover, .ds-select:hover { border-color: #3a3d48; }
+.ds-select:disabled { opacity: .6; cursor: not-allowed; }
 
 /* === Preview de resultados (Inn app) === */
 .preview-box {
@@ -276,8 +287,8 @@ tr:nth-child(even) { background: #181a20; }
 #status .spinner { display: inline-block; animation: spin 1.5s linear infinite; margin-right: 6px; }
 
 /* === Utilidades generales === */
-.mt-block { margin-top: 16px; }
-.actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.mt-block { margin-top: 0px; }
+.actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: nowrap; }
 .actions.right { justify-content: flex-end; }
 [hidden] { display: none !important; }
 
@@ -290,10 +301,18 @@ tr:nth-child(even) { background: #181a20; }
 .learn-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .learn-left { font-weight: 500; }
 .learn-toggle { display: flex; align-items: center; gap: 8px; }
-.unboxed-row { margin: 24px 0 16px; }
+.unboxed-row { margin: 0 0 16px; }
+
+/* === Containers === */
+#dynamic-container {
+  display: flex;            /* ← imprescindible para que funcione gap */
+  flex-direction: column;   /* elementos en columna */
+  gap: 16px;                /* separación vertical entre hijos directos */
+  width: 100%;
+}
 
 /* === Divider (línea separadora) === */
-.divider { border-bottom: 1px solid var(--border); margin: 16px 0; }
+.divider { border-bottom: 1px solid var(--border); margin: 16 0; }
 
 /* === Botones deshabilitados === */
 .btn:disabled,
@@ -311,4 +330,427 @@ tr:nth-child(even) { background: #181a20; }
   border-color: #3a56a5;
   color: #d1d5db; /* 🔹 gris claro para contraste */
 }
+
+/* === Dashboard / Data Dock === */
+
+/* Grid de métricas: 4 columnas en desktop, 2 en tablets, 1 en móvil */
+.domains-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+@media (max-width: 1024px) {
+  .domains-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .domains-grid-4 { grid-template-columns: 1fr; }
+}
+
+/* Caja "Fuente de datos" → alinear controles a la izquierda */
+.prompt-controls.actions {
+  justify-content: flex-start;
+  width: 100%;
+}
+
+/* Select de fuente: que se expanda en horizontal */
+#promptSelect {
+  flex: 1;
+  min-width: 280px;
+}
+
+/* ==== Tabs locales (mismo estilo que header) ==== */
+.nav .tab {
+  color: var(--text);
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  border: 1px solid transparent;
+}
+.nav .tab:hover { background: var(--panel-2); color: var(--accent); }
+.nav .tab.active {
+  background: var(--panel-2);
+  color: var(--accent);
+  font-weight: 500;
+  border-color: var(--border);
+}
+/* Menú alineado a la izquierda y con margen inferior sutil */
+#data-dock-menu { display: flex; gap: 8px; align-items: center; margin-top: 24px; }
+
+/* === Grid 2 columnas (segunda fila) === */
+.domains-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(240px, 1fr));
+  gap: 14px;
+}
+@media (max-width: 720px) { .domains-grid-2 { grid-template-columns: 1fr; } }
+
+/* === Charts (donut) === */
+.chart-box {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: center;    /* centra el bloque de chart + leyenda */
+  flex-wrap: wrap;
+  padding: 6px 0;             /* aire para evitar recortes superior/inferior */
+}
+.donut {
+  flex: 0 0 320px;     /* un pelín más ancho para que quepa el nuevo size */
+  max-width: 100%;
+  margin: 8px auto;
+  padding: 12px 0;     /* aire para evitar recorte visual */
+}
+/* Asegura que ningún trazo quede oculto si el navegador recorta por defecto */
+.donut svg { overflow: visible; }
+.chart-legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(140px, 1fr)); /* 2 columnas */
+  gap: 8px 14px;
+  align-content: start;
+  min-width: min(420px, 100%); /* no fuerces más ancho que la card */
+}
+.chart-legend .row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;               /* necesario para que el ellipsis funcione */
+}
+.chart-legend .swatch {
+  width: 12px; height: 12px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  flex: 0 0 12px;
+}
+.chart-legend .label {
+  flex: 1 1 auto;
+  min-width: 0;               /* necesario para ellipsis en flex */
+  overflow: hidden;
+  text-overflow: ellipsis;     /* … */
+  white-space: nowrap;
+  color: var(--text);
+}
+.chart-legend .count {
+  color: var(--muted);
+  margin-left: 8px;
+  flex: 0 0 auto;
+}
+/* Responsive: en pantallas estrechas, 1 columna de leyenda */
+@media (max-width: 520px) {
+  .chart-legend {
+    grid-template-columns: 1fr;
+    min-width: 0;
+  }
+}
+
+/* === Editor (Data Dock) === */
+
+/* === Acordeón: preguntas desplegables (Editor) === */
+.qa {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+  margin-bottom: 10px;
+  padding: 8px 12px;
+}
+.qa summary {
+  display: flex;
+  flex-direction: column;    /* fila de título + fila de opciones */
+  gap: 16px;
+  cursor: default;
+}
+.qa summary::-webkit-details-marker { display: none; } /* Safari/Chrome */
+
+.qa[open] {
+  background: var(--panel);
+  border-color: var(--accent);
+}
+
+/* fila de título (pregunta + icono) */
+/* fila de título (pregunta + icono) */
+.qa .qrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 🔹 texto a la izq, botón a la der */
+  gap: 10px;
+  width: 100%;
+}
+.qa .qrow .title {
+  margin: 0;
+  flex: 1 1 auto;  /* 🔹 ocupa todo el espacio restante */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qa .icon-btn {
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  cursor: pointer;
+  flex: 0 0 auto; /* 🔹 no se expande */
+}
+.qa .icon-btn:hover { border-color: #3a3d48; }
+
+
+/* opciones estilo SailUp (vertical) cuando está plegado */
+.qa .qopts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.opt.opt-static {
+  cursor: default;
+  user-select: text;
+}
+.opt.opt-static:hover {
+  border-color: var(--border); /* sin hover especial */
+}
+
+/* Variante del acordeón cuando vive dentro de una tarjeta .msg */
+.qa.qa--in-card {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+}
+.qa.qa--in-card[open] {
+  background: transparent;   /* la tarjeta ya gestiona el fondo */
+  border-color: transparent;
+}
+
+/* Inputs dentro del editor */
+#editorList input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 6px;
+}
+#editorList textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+/* === Secciones principales (Data Dock) === */
+.section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.section > .msg {
+  width: 100%;
+}
+
+/* === Editor · Meta (selects en cascada) === */
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.meta-note {
+  display: none;
+}
+
+.meta-note.is-visible {
+  display: block;
+}
+
+/* Marca de éxito en el select */
+#promptSelect.loaded {
+  background-image: url("data:image/svg+xml,%E2%9C%85");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 1.2em;
+  padding-right: 2em; /* espacio para el icono */
+}
+
+/* ✅ / ❌ feedback dentro del <select> (fiable en Safari/Chrome/Firefox) */
+#promptSelect.loaded,
+#promptSelect.error {
+  padding-right: 2em;           /* espacio para el icono */
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 1.1em;
+}
+
+/* ✅ check verde */
+#promptSelect.loaded {
+  background-image: url('data:image/svg+xml;utf8,\
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">\
+    <path fill="%2316a34a" d="M9 16.2l-3.5-3.5-1.4 1.4L9 19 20 8l-1.4-1.4z"/>\
+  </svg>');
+}
+
+/* ❌ cruz roja (opcional, el core ya añade .error) */
+#promptSelect.error {
+  background-image: url('data:image/svg+xml;utf8,\
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">\
+    <path fill="%23b91c1c" d="M18.3 5.7L12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3 10.6 10.6 16.9 4.3z"/>\
+  </svg>');
+}
+
+/* Evitar que los botones se encojan dentro de .actions */
+.actions .btn { 
+  flex: 0 0 auto; 
+  white-space: nowrap;   /* mantiene "+ Nueva pregunta" en una línea */
+}
+
+/* === Stack limpio bajo 1024px === */
+@media (max-width: 1024px) {
+  .actions,
+  .prompt-controls,
+  .upload-group {
+    flex-direction: column;     /* de fila → columna */
+    align-items: stretch;       /* que los hijos crezcan a 100% */
+    gap: 10px;
+  }
+
+  /* hijos a ancho completo y sin overflow raro en Safari */
+  .actions > *,
+  .prompt-controls > *,
+  .upload-group > * {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;               /* clave en flex items */
+  }
+
+  /* botones y file-btn también llenan el ancho */
+  .actions .btn,
+  .prompt-controls .btn,
+  .upload-group .btn,
+  .upload-group .file-btn {
+    width: 100%;
+    flex: 1 1 auto;             /* evitar 0 0 auto de desktop */
+  }
+
+  /* selects/campos largos seguros al 100% */
+  #promptSelect,
+  .ds-select,
+  .file-name {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
+/* === Uniformar altura de selects al apilar (< 1024px) === */
+@media (max-width: 1024px) {
+  /* Asegura misma altura que botones */
+  #promptSelect,
+  .ds-select,
+  .file-name {
+    height: var(--control-height);
+    min-height: var(--control-height);
+    line-height: calc(var(--control-height) - 2px); /* compensa el borde */
+    padding-top: 0;   /* evita crecer por padding vertical */
+    padding-bottom: 0;
+  }
+
+  /* Safari/iOS: algunos ignoran line-height en <select>.
+     Forzamos la altura con padding-block y line-height normal. */
+  @supports (-webkit-touch-callout: none) {
+    #promptSelect,
+    .ds-select {
+      line-height: normal;
+      padding-top: 10px;   /* simula altura visual */
+      padding-bottom: 10px;
+      min-height: var(--control-height);
+      height: auto;        /* permite que el padding fije la altura */
+    }
+  }
+}
+
+/* Solo botones centrados */
+.btn,
+.file-btn {
+  justify-content: center;
+  text-align: center;
+}
+
+.stack-16{display:flex;flex-direction:column;gap:16px;}
+
+/* Checkbox personalizado (editor) */
+#editorList input[type="checkbox"] {
+  appearance: none;        /* quita el checkbox nativo */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  background: var(--panel-2);
+  cursor: pointer;
+  position: relative;
+  margin: 0;
+}
+
+#editorList input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+#editorList input[type="checkbox"]:checked::after {
+  content: "✔";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -58%); /* centrado vertical/hor */
+  color: white;
+  font-size: 16px; /* tamaño del icono ✔ */
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* Quitar margin-top solo en las acciones del panel de edición (summary) */
+.qa.qa--in-card .actions {
+  margin-top: 0 !important;
+}
+
+/* === Tags (para topics) === */
+.tag-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--panel-2);
+  font-size: 12px;
+  line-height: 1;
+  color: var(--text);
+  user-select: none;
+}
+
+/* Tags más grandes solo en la pestaña Materias (≈ +20%) */
+#subdomains-section .tag {
+  font-size: calc(12px * 1.2); /* 14.4px */
+  padding: 5px 10px;           /* un pelín más de aire */
+}
+
+
+/* Pequeñas mejoras del editor de topics */
+.topics-editor .actions {
+  align-items: center;
+}
+.topics-editor .file-name {
+  flex: 1 1 auto;
+  min-width: 160px;
+}
+
+.muted { color: var(--muted); }
+
+.topics-editor { display: flex; flex-direction: column; gap: 16px; }
 

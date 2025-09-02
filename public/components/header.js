@@ -1,3 +1,4 @@
+// apps/inn/components/header.js
 async function loadHeader() {
   try {
     // Cargar el HTML base del header
@@ -9,7 +10,7 @@ async function loadHeader() {
     // Detectar app por pathname
     const path = location.pathname.toLowerCase();
     let app = "main";
-    if (path.startsWith("/inn")) app = "inn";
+    if (path.startsWith("/inn") || path.startsWith("/pirate-cave")) app = "inn";
     if (path.startsWith("/main")) app = "main";
 
     // Config logo/tabs
@@ -19,7 +20,7 @@ async function loadHeader() {
         defaultSection: "Inicio",
         titlePrefix: "SailUp",
         tabs: [
-          { label: "Inicio", href: "/main" },
+          { label: "Inicio", href: "/main" }
         ]
       },
       inn: {
@@ -28,8 +29,10 @@ async function loadHeader() {
         titlePrefix: "SailUp Inn",
         tabs: [
           { label: "Inicio", href: "/inn" },
-          { label: "AI Dock", href: "/inn/ai-dock" },
           { label: "Data Dock", href: "/inn/data-dock" },
+          { label: "Pirate Cave", href: "/inn/pirate-cave" },
+          { label: "AI Dock", href: "/inn/ai-dock" },
+          { label: "Captain JSON", href: "/inn/captain-json" },
           { label: "SailUp", href: "/main", external: true }
         ]
       }
@@ -40,45 +43,51 @@ async function loadHeader() {
     // Renderizar logo
     document.getElementById("brand").textContent = currentConfig.logo;
 
-    // Renderizar tabs
-    const nav = document.querySelector(".nav");
+// Renderizar tabs
+    const nav = document.querySelector('[data-role="topnav"]');
     nav.innerHTML = currentConfig.tabs
-      .map(t => {
-        const isExternal = t.external ? " tab-external" : "";
-        const target = t.external ? ' target="_blank" rel="noopener"' : "";
-        return `<a class="tab${isExternal}" href="${t.href}"${target}>${t.label}</a>`;
-      })
-      .join("");
+    .map(t => {
+      const isExternal = t.external ? " tab-external" : "";
+      const target = t.external ? ' target="_blank" rel="noopener"' : "";
+      return `<a class="tab${isExternal}" href="${t.href}"${target}>${t.label}</a>`;
+    })
+    .join("");
 
-    // === Activar tab actual (fix Inicio siempre azul) ===
+// === Activar tab actual (solo en el HEADER) ===
     const normalize = p => (p || "/").replace(/\/+$/, "") || "/";
     const currentPath = normalize(location.pathname);
 
-    const tabs = Array.from(document.querySelectorAll(".tab"))
-      .filter(a => !a.classList.contains("tab-external")); // no marcar externas
+// ⚠️ OJO: ahora buscamos SOLO dentro del header:
+    const headerTabs = Array.from(document.querySelectorAll('[data-role="topnav"] .tab'))
+    .filter(a => !a.classList.contains("tab-external"));
 
-    // Reglas de activación
     const isExactHome = href =>
-      href === "/" || href === "/inn" || href === "/main";
+    href === "/" || href === "/inn" || href === "/main";
 
     const matchScore = (href, pathNow) => {
       const h = normalize(href);
-      if (isExactHome(h)) return pathNow === h ? 10_000 : -1;    // home solo exacto
-      if (pathNow === h) return h.length + 1;                    // exacto no-home
-      if (pathNow.startsWith(h + "/")) return h.length;          // prefijo
+      if (isExactHome(h)) return pathNow === h ? 10_000 : -1;
+      if (pathNow === h) return h.length + 1;
+      if (pathNow.startsWith(h + "/")) return h.length;
       return -1;
     };
 
-    // Elegir la mejor coincidencia
     let best = { score: -1, el: null };
-    tabs.forEach(a => {
+    headerTabs.forEach(a => {
       const href = a.getAttribute("href");
       const score = matchScore(href, currentPath);
       if (score > best.score) best = { score, el: a };
     });
 
-    tabs.forEach(a => a.classList.remove("active"));
-    if (best.el) best.el.classList.add("active");
+// 🔒 solo tocamos las tabs del header
+    headerTabs.forEach(a => {
+      a.classList.remove("active");
+      a.removeAttribute("aria-current");
+    });
+    if (best.el) {
+      best.el.classList.add("active");
+      best.el.setAttribute("aria-current", "page");
+    }
 
     // === Versión backend ===
     const vres = await fetch(`/${app}/version`);
@@ -88,23 +97,23 @@ async function loadHeader() {
 
     // Brand con versión
     document.getElementById("brand").textContent =
-      `${currentConfig.logo} (${version})`;
+  `${currentConfig.logo} (${version})`;
 
     // Título del navegador con la MISMA lógica de coincidencia
-    let section = currentConfig.defaultSection;
-    let bestTab = { score: -1, label: section };
-    currentConfig.tabs.forEach(t => {
-      if (t.external) return;
-      const s = matchScore(t.href, currentPath);
-      if (s > bestTab.score) bestTab = { score: s, label: t.label };
-    });
-    section = bestTab.label;
+  let section = currentConfig.defaultSection;
+  let bestTab = { score: -1, label: section };
+  currentConfig.tabs.forEach(t => {
+    if (t.external) return;
+    const s = matchScore(t.href, currentPath);
+    if (s > bestTab.score) bestTab = { score: s, label: t.label };
+  });
+  section = bestTab.label;
 
-    document.title = `${currentConfig.titlePrefix} – ${section} (Beta ${version})`;
+  document.title = `${currentConfig.titlePrefix} – ${section} (Beta ${version})`;
 
-  } catch (err) {
-    console.error("Error cargando header:", err);
-  }
+} catch (err) {
+  console.error("Error cargando header:", err);
+}
 }
 
 loadHeader();

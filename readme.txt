@@ -1,4 +1,4 @@
-SailUp BO
+SailUp
 
 HOW TO RUN THE SERVER
 ---------------------
