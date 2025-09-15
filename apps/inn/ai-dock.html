@@ -1,205 +1,116 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SailUp Inn</title>
-  <link rel="icon" href="assets/img/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="/css/styles.css">
-  <link rel="stylesheet" href="/css/inn.css">
+  <title>SailUp Inn · AI Dock™</title>
+  <link rel="icon" href="/assets/img/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/inn.css" />
 </head>
 <body>
   <!-- Header se carga dinámicamente -->
   <div id="header-placeholder"></div>
 
-  <main class="chat">
+  <main class="chat ai-dock">
+    <!-- Intro -->
+    <div class="msg">
+      <div class="msg-inner">
+        <h1 class="title">🤖 AI Dock™</h1>
+        <p class="intro">
+          Selecciona un archivo Excel <strong>(formato SailUp)</strong>, elige o crea un prompt de <strong>OpenAI</strong> y procesa tus datos con un clic. 
+          La app solo acepta el Excel modelo; si no coincide, verás los errores de validación.
+        </p>
+      </div>
+    </div>
 
+    <!-- Upload + Validación de esquema -->
+    <div class="msg">
+      <div class="msg-inner">
+        <h2 class="title">📂 Excel</h2>
 
-      <!-- Intro -->
-      <div class="msg">
-        <div class="msg-inner">
-          <h1 class="title">🤖 AI Dock™</h1>
-          <p class="intro">
-            Antiguamente, los muelles eran la puerta de entrada de culturas, lenguas y nuevas ideas. En AI Dock™ ocurre algo parecido: Dejamos que la IA descargue todo su potencial y nos nutra con nueva información. Selecciona un archivo Excel, elige un prompt de <strong>Open AI</strong>, edítalo si lo necesitas y procesa tus datos con un solo clic.
-          </p>
+        <div class="grid cols-2">
+          <div>
+            <form id="uploadForm" enctype="multipart/form-data" class="actions upload-group">
+              <label class="file-btn">
+                Seleccionar archivo
+                <input type="file" id="fileInput" name="file" accept=".xlsx" required hidden />
+              </label>
+              <input type="text" id="fileName" class="file-name" placeholder="Ningún archivo seleccionado" readonly />
+            </form>
+          </div>
+
+          <div>
+
+            <div id="validationBox" hidden>
+              <div class="preview-box mt-block">
+                <div id="validationSummary" class="mt-block muted">⬆️ Selecciona un archivo Excel compatible para validar el formato.</div>
+                <div id="validationDetails" class="mt-block"></div>
+              </div>
+              <small class="muted">*La validación comprueba hojas y columnas mínimas requeridas. Configurable en apps/inn/js/ai-dock-excel-schema.js.</small>
+            </div>
+
+          </div>
         </div>
-      </div>      
+      </div>
+    </div>
 
-      <!-- Prompt editor -->
-      <div class="msg">
-        <div class="msg-inner">
-          <h2 class="title">⚙️ Editor de Prompt</h2>
-          <div class="prompt-controls actions">
+    <!-- Prompt selector + Crear prompt -->
+    <div class="msg">
+      <div class="msg-inner">
+        <h2 class="title">⚙️ Editor de Prompt</h2>
+        <div class="form-section">
+
+          <div class="actions">
             <select id="promptSelect">
               <option value="" disabled selected>Seleccionar prompt</option>
             </select>
-            <button id="loadPromptBtn" class="btn">Cargar</button>
+            <button id="createPromptBtn" class="btn">➕ Nuevo prompt</button>
           </div>
-          <textarea id="promptEditor"></textarea>
-          <div class="prompt-actions actions">
-            <!-- 🔹 ahora CTA -->
-            <button id="savePromptBtn" class="btn btn-primary" disabled>Guardar cambios</button>
+
+          <!-- Nombre de archivo nuevo (solo visible al crear) -->
+          <div id="createPromptRow" class="mt-block" hidden>
+            <div class="input-inline">
+              <label class="field">
+                <span class="label">Nombre del archivo</span>
+                <input id="newPromptName" type="text" placeholder="ej. prompt-new.js" />
+              </label>
+              <button id="useTemplateBtn" class="btn">Usar plantilla</button>
+            </div>
           </div>
+
+          <textarea id="promptEditor" placeholder="Carga un prompt existente o usa la plantilla para crear uno nuevo."></textarea>
+        </div>
+
+        <div class="prompt-actions actions">
+          <button id="savePromptBtn" class="btn" disabled>Guardar cambios</button>
         </div>
       </div>
+    </div>
 
-      <!-- Upload -->
-      <div class="msg">
-        <div class="msg-inner">
-          <h2 class="title">📂 Subir archivo</h2>
-          <form id="uploadForm" enctype="multipart/form-data" class="actions upload-group">
-            <label class="file-btn">
-              Seleccionar archivo
-              <input type="file" id="fileInput" name="file" accept=".xlsx" required hidden />
-            </label>
-            <input type="text" id="fileName" class="file-name" placeholder="Ningún archivo seleccionado" readonly />
-            <button type="submit" id="processBtn" class="btn btn-primary" disabled>Procesar</button>
-          </form>
+    <div class="actions-footer">
+      <button id="processBtn" class="btn btn-primary" disabled>✨ Procesar</button>
+    </div>
+
+    <!-- Resultados -->
+    <div class="msg" id="resultsBlock">
+      <div class="msg-inner">
+        <div class="title-feedback">
+          <h2 class="title">📊 Resultado</h2>
           <p id="status" class="intro"></p>
         </div>
-      </div>
-
-      <!-- Result table -->
-      <div class="msg" id="resultsBlock">
-        <div class="msg-inner">
-          <h2 class="title">📊 Resultados</h2>
-          <div id="resultsPreview" class="preview-box table-preview empty mt-block">
-            <div id="table-container"></div>
-          </div>
-          <div class="actions right mt-block">
-            <button id="downloadBtn" class="btn btn-primary" disabled>⬇️ Descargar Excel</button>
-          </div>
+        <div id="resultsPreview" class="preview-box table-preview empty mt-block">
+          <div id="table-container"></div>
+        </div>
+        <div class="actions right mt-block">
+          <button id="downloadBtn" class="btn btn-primary" disabled>⬇️ Descargar Excel</button>
         </div>
       </div>
-
-
+    </div>
   </main>
 
   <!-- Scripts -->
   <script src="/components/header.js"></script>
-  <script>
-    // Cargar lista de prompts
-    fetch("/inn/prompts")
-      .then(res => res.json())
-      .then(files => {
-        const select = document.getElementById("promptSelect");
-        files.forEach(f => {
-          const option = document.createElement("option");
-          option.value = f;
-          option.textContent = f;
-          select.appendChild(option);
-        });
-      });
-
-    const form = document.getElementById("uploadForm");
-    const statusEl = document.getElementById("status");
-    const tableContainer = document.getElementById("table-container");
-    const downloadBtn = document.getElementById("downloadBtn");
-    const fileInput = document.getElementById("fileInput");
-    const fileName = document.getElementById("fileName");
-    const savePromptBtn = document.getElementById("savePromptBtn");
-    const processBtn = document.getElementById("processBtn");
-
-    // Mostrar nombre de archivo seleccionado
-    fileInput.addEventListener("change", () => {
-      fileName.value = fileInput.files.length ? fileInput.files[0].name : "Ningún archivo seleccionado";
-      checkProcessReady();
-    });
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const formData = new FormData(form);
-
-      const selectedPrompt = document.getElementById("promptSelect").value;
-      if (!selectedPrompt) {
-        alert("⚠️ Debes seleccionar un prompt antes de procesar el archivo.");
-        return;
-      }
-
-      formData.append("prompt", selectedPrompt);
-
-      statusEl.innerHTML = '<span class="spinner">🛟</span> Procesando...';
-
-      const response = await fetch("/inn/upload", { method: "POST", body: formData });
-      if (response.ok) {
-        const result = await response.json();
-        statusEl.textContent = "✅ Procesado correctamente";
-        renderTable(result.data);
-        downloadBtn.style.display = "inline-block";
-      } else {
-        statusEl.textContent = "❌ Error procesando el archivo.";
-      }
-    });
-
-
-    function renderTable(data) {
-      const wrapper = document.getElementById("resultsPreview");
-
-      if (!data.length) {
-        tableContainer.innerHTML = "";
-        wrapper.classList.add("empty");   // caja vacía
-        downloadBtn.disabled = true;      // botón desactivado
-        return;
-      }
-
-      // hay datos → quitamos el estado vacío
-      wrapper.classList.remove("empty");
-      downloadBtn.disabled = false;
-
-      const keys = Object.keys(data[0]);
-      let html = "<table><thead><tr>";
-      keys.forEach(k => html += `<th>${k}</th>`);
-      html += "</tr></thead><tbody>";
-      data.forEach(row => {
-        html += "<tr>";
-        keys.forEach(k => html += `<td>${row[k] || ""}</td>`);
-        html += "</tr>";
-      });
-      html += "</tbody></table>";
-      tableContainer.innerHTML = html;
-    }
-
-    downloadBtn.addEventListener("click", () => window.location.href = "/inn/download");
-
-    document.getElementById("loadPromptBtn").addEventListener("click", async (e) => {
-      e.preventDefault();
-      const selected = document.getElementById("promptSelect").value;
-      if (!selected) return;
-      const res = await fetch(`/inn/prompts/${selected}`);
-      if (res.ok) {
-        const data = await res.json();
-        document.getElementById("promptEditor").value = data.content;
-        checkPromptEditor();
-        checkProcessReady();
-      }
-    });
-
-    document.getElementById("savePromptBtn").addEventListener("click", async (e) => {
-      e.preventDefault();
-      const selected = document.getElementById("promptSelect").value;
-      const content = document.getElementById("promptEditor").value;
-      const res = await fetch(`/inn/prompts/${selected}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content })
-      });
-      if (res.ok) alert("✅ Prompt actualizado");
-      else alert("❌ Error guardando el prompt");
-    });
-
-    // === Funciones de habilitación/deshabilitación ===
-    function checkPromptEditor() {
-      const hasPrompt = document.getElementById("promptEditor").value.trim().length > 0;
-      savePromptBtn.disabled = !hasPrompt;
-    }
-    document.getElementById("promptEditor").addEventListener("input", checkPromptEditor);
-
-    function checkProcessReady() {
-      const hasFile = fileInput.files.length > 0;
-      const hasPrompt = document.getElementById("promptSelect").value !== "";
-      processBtn.disabled = !(hasFile && hasPrompt);
-    }
-    document.getElementById("promptSelect").addEventListener("change", checkProcessReady);
-  </script>
+  <script src="/inn/js/ai-dock.js"></script>
 </body>
 </html>

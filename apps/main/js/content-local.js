@@ -3,7 +3,7 @@
 
 export async function getLocalData() {
   try {
-    const response = await fetch('/data/sailup_per_syllabus_questions.json'); // ajusta el filename si toca
+    const response = await fetch('/data/sailup_per_syllabus.json'); // ajusta el filename si toca
     if (!response.ok) {
       throw new Error('No se pudo cargar el archivo.');
     }

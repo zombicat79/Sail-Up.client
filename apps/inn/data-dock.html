@@ -31,11 +31,11 @@
     <section id="data-source-section">
       <article class="msg">
         <div class="msg-inner">
-          <h2 class="title">📚 Fuente de datos</h2>
-          <p class="intro">Selecciona la base de datos del título o curso que desees inspeccionar.</p>
+          <h2 class="title">📚 Cursos</h2>
+          <p class="intro">Selecciona la base de datos del curso que desees inspeccionar.</p>
           <div class="prompt-controls actions" style="justify-content:flex-start; width:100%;">
             <select id="promptSelect" title="Seleccionar base de datos" style="flex:1; min-width:280px;">
-              <option value="" disabled selected>Seleccionar base de datos</option>
+              <option value="" disabled selected>Seleccionar curso</option>
             </select>
             <button id="applySourceBtn" class="btn btn-primary">Cargar</button>
           </div>
@@ -46,8 +46,8 @@
     <!-- Menú de subservicios (estilo tabs) -->
     <nav class="nav" id="data-dock-menu">
       <a class="tab active" href="#dashboard" data-tab="dashboard">Dashboard</a>
-      <a class="tab" href="#syllabus" data-tab="syllabus">Temario</a>
-      <a class="tab" href="#subdomains" data-tab="subdomains">Materias</a>
+      <a class="tab" href="#syllabus" data-tab="syllabus">Módulos</a>
+      <a class="tab" href="#subdomains" data-tab="subdomains">Temario</a>
       <a class="tab" href="#editor" data-tab="editor">Preguntas</a>
     </nav>
 
@@ -58,25 +58,25 @@
       <!-- Grid de métricas (4 columnas) -->
       <div class="domains-grid domains-grid-4">
 
-        <!-- Temas (topics[].id) -->
+        <!-- Domains -->
         <article class="domain-card is-static" aria-live="polite">
-          <div class="domain-head"><div class="domain-title">Temas</div></div>
+          <div class="domain-head"><div class="domain-title">Módulos</div></div>
           <div id="metric-total-topics" style="font-size:2.2rem; font-weight:800;">—</div>
         </article>
 
-        <!-- Subtemas (únicos por Subdomain) -->
+        <!-- Subdomains -->
         <article class="domain-card is-static" aria-live="polite">
-          <div class="domain-head"><div class="domain-title">Subtemas</div></div>
+          <div class="domain-head"><div class="domain-title">Unidades</div></div>
           <div id="metric-total-subtemas" style="font-size:2.2rem; font-weight:800;">—</div>
         </article>
 
-        <!-- Tópicos (únicos por Topic) -->
+        <!-- Topics -->
         <article class="domain-card is-static" aria-live="polite">
-          <div class="domain-head"><div class="domain-title">Tópicos</div></div>
+          <div class="domain-head"><div class="domain-title">Temas</div></div>
           <div id="metric-total-topicos" style="font-size:2.2rem; font-weight:800;">—</div>
         </article>
 
-        <!-- Preguntas -->
+        <!-- Questions -->
         <article class="domain-card is-static" aria-live="polite">
           <div class="domain-head"><div class="domain-title">Preguntas</div></div>
           <div id="metric-total-questions" style="font-size:2.2rem; font-weight:800;">—</div>
@@ -87,10 +87,10 @@
       <!-- Segunda fila: 2 columnas con donuts -->
       <div class="domains-grid domains-grid-2 mt-block">
 
-        <!-- Donut: Tópicos por tema -->
+        <!-- Donut: Tópicos por domain -->
         <article class="domain-card is-static">
           <div class="domain-head">
-            <div class="domain-title">Tópicos por tema</div>
+            <div class="domain-title">Temas por módulo</div>
           </div>
           <div class="chart-box">
             <div id="donut-topicos" class="donut"></div>
@@ -98,10 +98,10 @@
           </div>
         </article>
 
-        <!-- Donut: Preguntas por tema -->
+        <!-- Donut: Preguntas por domain -->
         <article class="domain-card is-static">
           <div class="domain-head">
-            <div class="domain-title">Preguntas por tema</div>
+            <div class="domain-title">Preguntas por módulo</div>
           </div>
           <div class="chart-box">
             <div id="donut-preguntas" class="donut"></div>
@@ -116,75 +116,23 @@
       <!-- Lista de domains -->
       <div id="domainsBlock" class="stack-16">
         <div id="domains-list" role="list" class="stack-16"></div>
-
         <button id="btn-add-domain" class="btn btn-primary w-full">
-          ➕ Añadir tema
+          ➕ Añadir módulo
         </button>
       </div>
-      
-
-      <!-- Panel de edición de domain -->
-      <article class="msg" id="editor-card" hidden>
-        <div class="msg-inner">
-          <h3 class="title" style="margin-bottom:8px;">Editar tema</h3>
-
-          <div class="form-grid" style="display:grid; gap:12px;">
-            <label class="field">
-              <span class="label">Domain / Title *</span>
-              <input id="fld-domain-title" type="text" placeholder="Ej. Nomenclatura náutica" />
-              <small class="muted">Al guardar, <code>domain</code> y <code>title</code> se sincronizan.</small>
-            </label>
-
-            <label class="field">
-              <span class="label">Domain ID</span>
-              <input id="fld-domain-id" type="text" placeholder="p.ej. nomenclatura" />
-              <small class="muted">Usado para emparejar con Excel. Sin espacios; usa guiones.</small>
-            </label>
-
-            <label class="field">
-              <span class="label">Descripción</span>
-              <textarea id="fld-description" rows="3" placeholder="Breve descripción del domain"></textarea>
-            </label>
-
-            <label class="field">
-              <span class="label">Imagen (URL)</span>
-              <input id="fld-image" type="text" placeholder="https://..." />
-            </label>
-          </div>
-
-          <hr class="divider" style="margin:16px 0;" />
-
-          <h4 class="q-title" style="margin: 6px 0 8px;">Subdomains</h4>
-          <div id="subdomains-list" role="list" style="display:flex; flex-direction:column; gap:8px;"></div>
-
-          <button id="btn-add-subdomain" class="btn w-full" style="margin-top:12px;">
-            ➕ Añadir subdomain
-          </button>
-
-          <hr class="divider" style="margin:16px 0;" />
-
-          <div class="actions" style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button id="btn-save-domain" class="btn btn-primary">💾 Guardar cambios</button>
-            <button id="btn-delete-domain" class="btn err">🗑️ Eliminar tema</button>
-            <button id="btn-close-editor" class="btn">✖️ Cerrar editor</button>
-          </div>
-        </div>
-      </article>
     </section>
 
-    <!-- Subdomains (Materias) section -->
+    <!-- Subdomains section -->
     <section id="subdomains-section" class="section" hidden>
       <!-- Caja de selección de Domain -->
       <article class="msg">
         <div class="msg-inner">
-          <h2 class="title">Materias</h2>
-          <p class="intro">Selecciona un <strong>tema</strong> (Domain) para ver y editar sus materias (Subdomains) y sus tópicos.</p>
-
+          <h2 class="title">Temario</h2>
+          <p class="intro">Selecciona un módulo para ver y editar el temario.</p>
           <div class="actions" id="subd-controls">
-            <select id="subdDomain" class="ds-select" title="Seleccionar Domain" disabled>
-              <option value="" disabled selected>Selecciona Domain</option>
+            <select id="subdDomain" class="ds-select" disabled>
+              <option value="" disabled selected>Seleccionar módulo</option>
             </select>
-            <button id="subdLoad" class="btn btn-primary" disabled>Cargar</button>
           </div>
         </div>
       </article>
@@ -192,10 +140,9 @@
 
       <!-- Bloque de materias: oculto hasta cargar un Domain -->
       <div id="subdBlock" class="stack-16" hidden>
-        <h3 class="title" style="margin-bottom:8px;">Listado de materias del domain</h3>
         <div id="subdList" role="list" class="stack-16"></div>
         <button id="subdAdd" class="btn btn-primary w-full" disabled>
-          ➕ Añadir materia
+          ➕ Añadir temario
         </button>
       </div>
       </article>
@@ -207,26 +154,25 @@
     <section id="editor-section" class="section" hidden>
       <article class="msg">
         <div class="msg-inner">
-          <h2 class="title">Opciones</h2>
-          <!-- Controles: selects en cascada -->
+          <h2 class="title">Preguntas</h2>
+          <p class="intro">Selecciona un módulo, un tema, y una lección par ver y editar las preguntas.</p>
           <div class="actions" id="editor-controls">
             <select id="editorDomain" class="ds-select">
-              <option value="" disabled selected>Selecciona Domain</option>
+              <option value="" disabled selected>Seleccionar módulo</option>
             </select>
             <select id="editorSubdomain" class="ds-select" disabled>
-              <option value="" disabled selected>Selecciona Subdomain</option>
+              <option value="" disabled selected>Seleccionar unidad</option>
             </select>
             <select id="editorTopic" class="ds-select" disabled>
-              <option value="" disabled selected>Selecciona Topic</option>
+              <option value="" disabled selected>Seleccionar tema</option>
             </select>
-            <button id="editorLoad" class="btn btn-primary" disabled>Cargar</button>
-            <button id="editorAdd" class="btn" disabled>➕ Nueva pregunta</button> <!-- NUEVO -->
           </div>
         </div>
       </article>
 
       <!-- Lista de preguntas (cada pregunta ya es una tarjeta .msg) -->
       <div id="editorList" class="mt-block section"></div>
+      <button id="editorAdd" class="btn btn-primary" disabled>➕ Añadir pregunta</button> 
     </section>
   </main>
 
@@ -234,7 +180,7 @@
   <script src="/components/header.js"></script>
   <script type="module" src="/data-dock/js/data-dock-core.js"></script>
   <script type="module" src="/data-dock/js/data-dock-dashboard.js"></script>
-  <script type="module" src="/data-dock/js/data-dock-editor.js"></script>
+  <script type="module" src="/data-dock/js/data-dock-questions.js"></script>
   <script type="module" src="/data-dock/js/data-dock-tabs.js"></script>
   <script type="module" src="/data-dock/js/data-dock-domains.js"></script>
   <script type="module" src="/data-dock/js/data-dock-subdomains.js"></script>

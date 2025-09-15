@@ -1,4 +1,4 @@
-// /data-dock/js/data-dock-syllabus.js
+// /data-dock/js/data-dock-domains.js
 // Syllabus (Temario) — SOLO Domains
 // UI/UX igual a "Materias": listado en tarjetas con acordeón por ítem,
 // acciones Duplicar / Eliminar / Editar en la cabecera, editor inline al abrir,
@@ -6,7 +6,7 @@
 //
 // Estructura esperada del JSON:
 // QUESTIONS.syllabus.domains = [
-//   { domain, "domain-id", "domain-overview", "domain-image", subdomains: [...] }
+//   { domain, "domain-id", "domain-overview", "domain-image", "domain-order", subdomains: [...] }
 // ]
 //
 // Persistencia: POST /inn/data-dock/save?target=/data/<file>.json
@@ -24,7 +24,7 @@ let CURRENT_URL = null;    // URL del JSON aplicado
 let DOMAINS = [];          // alias a QUESTIONS.syllabus.domains
 
 // ===== Utils =====
-const str = (v) => (v == null ? "" : String(v));
+const str  = (v) => (v == null ? "" : String(v));
 const trim = (v) => str(v).trim();
 
 function toast(msg) {
@@ -42,10 +42,10 @@ function toast(msg) {
 
 function slugify(s) {
   return trim(s)
-    .toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+  .toLowerCase()
+  .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  .replace(/[^a-z0-9]+/g, "-")
+  .replace(/(^-|-$)/g, "");
 }
 
 function cleanTitleForDomain(s) {
@@ -57,11 +57,39 @@ function ensureStructure(payload) {
   if (!payload) payload = {};
   if (!payload.syllabus) payload.syllabus = {};
   if (!Array.isArray(payload.syllabus.domains)) payload.syllabus.domains = [];
+  // Asegura domain-order secuencial si falta
+  payload.syllabus.domains.forEach((d, i) => {
+    if (!trim(str(d["domain-order"]))) d["domain-order"] = String(i + 1);
+  });
   return payload;
 }
 
 function escapeHtml(s) {
   return (s || "").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+}
+
+// ===== Orden / reorden helpers =====
+function normalizeOrders() {
+  DOMAINS.forEach((d, i) => d["domain-order"] = String(i + 1));
+}
+
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, n));
+}
+
+function moveDomainToOrder(targetNode, desiredOrder) {
+  const max = DOMAINS.length;
+  const newPos = clamp(Number(desiredOrder) || 1, 1, max) - 1;
+
+  const oldIndex = DOMAINS.indexOf(targetNode);
+  if (oldIndex < 0) return;
+
+  // Mover en el array
+  DOMAINS.splice(oldIndex, 1);
+  DOMAINS.splice(newPos, 0, targetNode);
+
+  // Renumerar correlativamente
+  normalizeOrders();
 }
 
 // ===== Carga / guardado =====
@@ -99,7 +127,7 @@ function iconBtn(emoji, title) {
 }
 
 function blockInput(label, value, onInput, opts = {}) {
-  const { multiline = false, placeholder = "", className = "" } = opts;
+  const { multiline = false, placeholder = "", className = "", type = "text", min, max, step } = opts;
   const box = document.createElement("div");
   box.className = "mt-block";
   const lab = document.createElement("label");
@@ -116,22 +144,28 @@ function blockInput(label, value, onInput, opts = {}) {
     ta.style.width = "100%";
     ta.style.minHeight = "90px";
     ta.className = `preview-box ${className}`.trim();
-    ta.addEventListener("input", () => onInput(ta.value));
+    ta.addEventListener("input", () => onInput(ta.value, ta));
     box.appendChild(ta);
   } else {
     const inp = document.createElement("input");
-    inp.type = "text";
-    inp.value = value || "";
+    inp.type = type || "text";
+    if (type === "number") {
+      if (min != null)  inp.min = String(min);
+      if (max != null)  inp.max = String(max);
+      if (step != null) inp.step = String(step);
+      // Evita scroll numérico accidental
+      inp.addEventListener("wheel", e => inp === document.activeElement && e.preventDefault(), { passive:false });
+    }
+    inp.value = value ?? "";
     inp.placeholder = placeholder || "";
     inp.className = `file-name ${className}`.trim();
-    inp.addEventListener("input", () => onInput(inp.value));
+    inp.addEventListener("input", () => onInput(inp.value, inp));
     box.appendChild(inp);
   }
   return box;
 }
 
 function renderDomains({ openIndex = null, preserveOpen = true } = {}) {
-  // Mantener qué acordeones están abiertos si se pide
   const openSet = new Set();
   if (preserveOpen) {
     listEl.querySelectorAll("details.qa").forEach((d, idx) => {
@@ -144,7 +178,7 @@ function renderDomains({ openIndex = null, preserveOpen = true } = {}) {
   if (!DOMAINS.length) {
     const empty = document.createElement("div");
     empty.className = "preview-box empty";
-    empty.textContent = "No hay temas. Añade el primero.";
+    empty.textContent = "No hay módulos. Añade el primero.";
     listEl.appendChild(empty);
     btnAdd.disabled = false;
     return;
@@ -152,9 +186,9 @@ function renderDomains({ openIndex = null, preserveOpen = true } = {}) {
 
   DOMAINS.forEach((node, idx) => {
     const domainTitle = str(node?.domain) || "(Sin título)";
-    const domainId = str(node?.["domain-id"]);
+    const domainOrder = trim(str(node?.["domain-order"]));
     const domainDesc = str(node?.["domain-overview"]);
-    const domainImg = str(node?.["domain-image"]);
+    const domainImg  = str(node?.["domain-image"]);
 
     const card = document.createElement("article");
     card.className = "msg";
@@ -176,37 +210,41 @@ function renderDomains({ openIndex = null, preserveOpen = true } = {}) {
 
     const title = document.createElement("h2");
     title.className = "title";
-    title.textContent = domainTitle;
+    const orderPrefix = domainOrder ? `${domainOrder}. ` : "";
+    title.textContent = `${orderPrefix}${domainTitle}`;
 
     const actions = document.createElement("div");
     actions.style.display = "flex";
     actions.style.gap = "6px";
 
-    const btnDup = iconBtn("🧬", "Duplicar tema");
+    const btnDup = iconBtn("🧬", "Duplicar");
     btnDup.addEventListener("click", async (ev) => {
       ev.preventDefault(); ev.stopPropagation();
       const clone = (typeof structuredClone === "function")
-        ? structuredClone(node)
-        : JSON.parse(JSON.stringify(node));
+      ? structuredClone(node)
+      : JSON.parse(JSON.stringify(node));
       clone.domain = `${domainTitle} (copia)`;
-      if (clone["domain-id"]) clone["domain-id"] = `${clone["domain-id"]}-copy`;
+      // Insertamos detrás y renumeramos
       DOMAINS.splice(idx + 1, 0, clone);
+      normalizeOrders();
       try {
         await saveFullJson(RAW);
-        renderDomains({ openIndex: idx + 1 });
-        toast("Tema duplicado.");
+        const newIndex = DOMAINS.indexOf(clone);
+        renderDomains({ openIndex: newIndex });
+        toast("Módulo duplicado.");
       } catch (e) { console.error(e); alert("❌ Error al duplicar."); }
     });
 
-    const btnDel = iconBtn("🗑️", "Eliminar tema");
+    const btnDel = iconBtn("🗑️", "Eliminar");
     btnDel.addEventListener("click", async (ev) => {
       ev.preventDefault(); ev.stopPropagation();
-      if (!confirm("⚠️ ¿Eliminar este tema? (no borra preguntas)")) return;
+      if (!confirm("⚠️ ¿Eliminar este módulo?")) return;
       DOMAINS.splice(idx, 1);
+      normalizeOrders();
       try {
         await saveFullJson(RAW);
         renderDomains();
-        toast("Tema eliminado.");
+        toast("Módulo eliminado.");
       } catch (e) { console.error(e); alert("❌ Error al eliminar."); }
     });
 
@@ -222,9 +260,9 @@ function renderDomains({ openIndex = null, preserveOpen = true } = {}) {
     // Fila 2: descripción (debajo del título+acciones)
     const desc = document.createElement("div");
     desc.className = "muted";
-    desc.style.fontSize = "1rem";       // mismo que <p>
-    desc.style.marginTop = "8px";       // espacio con fila 1
-    desc.style.whiteSpace = "pre-wrap"; // permite saltos de línea
+    desc.style.fontSize = "1rem";
+    desc.style.marginTop = "0px";
+    desc.style.whiteSpace = "pre-wrap";
     desc.style.lineHeight = "1.5";
     desc.textContent = domainDesc || "—";
 
@@ -242,56 +280,139 @@ function renderDomains({ openIndex = null, preserveOpen = true } = {}) {
     const editWrap = document.createElement("div");
     editWrap.className = "stack-16";
 
-    // Domain / Title
-    editWrap.appendChild(
-      blockInput("Domain / Title *", domainTitle, (val) => {
-        const clean = cleanTitleForDomain(val || "");
-        node.domain = clean;
-        title.textContent = clean || "(Sin título)";
-      }, { placeholder: "Ej. Nomenclatura náutica" })
-    );
+    // --- BORRADOR LOCAL (no toca node hasta guardar) ---
+    const draft = {
+      domain: domainTitle,
+      "domain-id": node["domain-id"] || "",
+      "domain-overview": domainDesc || "",
+      "domain-image": domainImg || "",
+      "domain-order": domainOrder || String(idx + 1),
+    };
+    let hasSaved = false;
 
-    // Domain ID
-    editWrap.appendChild(
-      blockInput("Domain ID", domainId, (val) => {
-        node["domain-id"] = trim(val);
-      }, { placeholder: "p.ej. nomenclatura" })
-    );
+    // (A) Número de tema (domain-order) — permite borrar mientras escribes
+    const orderBlock = blockInput(
+      "Numeración",
+      draft["domain-order"],
+      (val) => {
+    // Permite vacío mientras se teclea
+        const raw    = String(val ?? "");
+    const digits = raw.replace(/[^\d]/g, ""); // filtramos pero NO forzamos a 1
+    draft["domain-order"] = digits;           // puede quedar "" temporalmente
 
-    // Descripción (multilínea)
-    editWrap.appendChild(
-      blockInput("Descripción", domainDesc, (val) => {
-        node["domain-overview"] = val;
-        // sincroniza preview de la lista
+    // Vista previa del título (sin mover ni tocar node)
+    const prefix = digits ? `${digits}. ` : "";
+    const clean  = cleanTitleForDomain(draft.domain || domainTitle) || "(Sin título)";
+    title.textContent = `${prefix}${clean}`;
+  },
+  { type: "number", min: 1, step: 1, placeholder: "1, 2, 3…" }
+  );
+
+    // Normaliza SOLO al perder el foco (si queda vacío o fuera de rango)
+    (() => {
+      const inp = orderBlock.querySelector('input[type="number"]');
+      if (!inp) return;
+      inp.addEventListener("blur", () => {
+    // Si está vacío, no “saltes” a 1 por sorpresa: usa el orden actual
+        const currentOrder = String(DOMAINS.indexOf(node) + 1);
+        let digits = String(draft["domain-order"] || "").replace(/[^\d]/g, "");
+        if (!digits) digits = currentOrder;
+
+    // Clamp al rango 1..N
+        const max = DOMAINS.length;
+        let n = Math.min(Math.max(parseInt(digits, 10) || 1, 1), max);
+        draft["domain-order"] = String(n);
+
+    // Refleja normalizado en UI
+        inp.value = String(n);
+        const clean  = cleanTitleForDomain(draft.domain || domainTitle) || "(Sin título)";
+        title.textContent = `${n}. ${clean}`;
+      });
+    })();
+    editWrap.appendChild(orderBlock);
+
+
+    // (B) Domain / Title
+    const titleBlock = blockInput(
+      "Módulo",
+      draft.domain,
+      (val) => {
+        draft.domain = cleanTitleForDomain(val || "");
+        const prefix = (draft["domain-order"] && Number(draft["domain-order"]) > 0) ? `${draft["domain-order"]}. ` : "";
+        title.textContent = `${prefix}${draft.domain || "(Sin título)"}`;
+      },
+      { placeholder: "Ej. Nomenclatura náutica" }
+      );
+    editWrap.appendChild(titleBlock);
+
+    // (C) Domain ID (solo en edición)
+    const idBlock = blockInput(
+      "ID",
+      draft["domain-id"],
+      (val) => { draft["domain-id"] = trim(val); },
+      { placeholder: "Ej. nomenclatura" }
+      );
+    editWrap.appendChild(idBlock);
+
+    // (D) Descripción (multilínea)
+    const descBlock = blockInput(
+      "Descripción",
+      draft["domain-overview"],
+      (val) => {
+        draft["domain-overview"] = val;
+        // Vista previa del listado (no persiste)
         desc.textContent = val || "—";
-      }, { multiline: true, placeholder: "Breve descripción del tema" })
-    );
+      },
+      { multiline: true, placeholder: "Breve descripción del módulo" }
+      );
+    editWrap.appendChild(descBlock);
 
-    // Imagen (URL)
-    editWrap.appendChild(
-      blockInput("Imagen (URL)", domainImg, (val) => {
-        node["domain-image"] = trim(val);
-      }, { placeholder: "https://…" })
-    );
+    // (E) Imagen (URL)
+    const imgBlock = blockInput(
+      "Imagen (URL)",
+      draft["domain-image"],
+      (val) => { draft["domain-image"] = trim(val); },
+      { placeholder: "https://…" }
+      );
+    editWrap.appendChild(imgBlock);
 
     // Acciones guardar
     const actionsEdit = document.createElement("div");
-    actionsEdit.className = "actions";
+    actionsEdit.className = "actions edit-panel-footer";
     const btnSave = document.createElement("button");
     btnSave.className = "btn btn-primary";
     btnSave.textContent = "Guardar cambios";
     btnSave.addEventListener("click", async () => {
-      if (!trim(node["domain-id"])) node["domain-id"] = slugify(node.domain || "");
+      // 1) Aplicar borrador al node
+      node.domain = draft.domain;
+      node["domain-id"] = trim(draft["domain-id"]) || slugify(draft.domain || "");
+      node["domain-overview"] = draft["domain-overview"];
+      node["domain-image"] = draft["domain-image"];
+
+      // 2) Reordenar si procede
+      const beforeIndex = DOMAINS.indexOf(node);
+      const desired = Number(draft["domain-order"]);
+      moveDomainToOrder(node, Number.isFinite(desired) && desired > 0 ? desired : (beforeIndex + 1));
+      const afterIndex = DOMAINS.indexOf(node);
+
       try {
         await saveFullJson(RAW);
+        hasSaved = true;
         btnSave.textContent = "✅ Guardado";
         setTimeout(() => btnSave.textContent = "Guardar cambios", 1200);
-        renderDomains({ preserveOpen: true });
+        // Re-render y CERRAR panel tras guardar
+        renderDomains({ preserveOpen: false });
         toast("Cambios guardados.");
       } catch (e) {
         console.error(e);
         btnSave.textContent = "❌ Error";
         setTimeout(() => btnSave.textContent = "Guardar cambios", 1200);
+        // Revertir orden si falló
+        if (afterIndex !== beforeIndex) {
+          DOMAINS.splice(afterIndex, 1);
+          DOMAINS.splice(beforeIndex, 0, node);
+          normalizeOrders();
+        }
       }
     });
     actionsEdit.append(btnSave);
@@ -299,15 +420,53 @@ function renderDomains({ openIndex = null, preserveOpen = true } = {}) {
 
     details.appendChild(editWrap);
 
-    // Toggle: al abrir, ocultamos dup/eliminar y la descripción; cambiamos botón y mostramos divider
+    // --- Helpers para resetear si se cierra sin guardar ---
+    function resetInputsAndPreviewFromNode() {
+      const persistedOrder = trim(str(node["domain-order"])) || String(DOMAINS.indexOf(node) + 1);
+      const persistedTitle = str(node.domain) || "(Sin título)";
+      const persistedDesc  = str(node["domain-overview"]) || "";
+
+      // Reset preview del listado
+      title.textContent = `${persistedOrder ? persistedOrder + ". " : ""}${persistedTitle}`;
+      desc.textContent  = persistedDesc || "—";
+
+      // Reset inputs del panel
+      const orderInput = orderBlock.querySelector('input[type="number"]');
+      const titleInput = titleBlock.querySelector('input[type="text"]');
+      const idInput    = idBlock.querySelector('input[type="text"]');
+      const descArea   = descBlock.querySelector('textarea');
+      const imgInput   = imgBlock.querySelector('input[type="text"]');
+
+      if (orderInput) orderInput.value = persistedOrder;
+      if (titleInput) titleInput.value = persistedTitle;
+      if (idInput)    idInput.value    = str(node["domain-id"] || "");
+      if (descArea)   descArea.value   = persistedDesc;
+      if (imgInput)   imgInput.value   = str(node["domain-image"] || "");
+
+      // Reset borrador
+      draft["domain-order"]   = persistedOrder;
+      draft.domain            = persistedTitle;
+      draft["domain-id"]      = str(node["domain-id"] || "");
+      draft["domain-overview"]= persistedDesc;
+      draft["domain-image"]   = str(node["domain-image"] || "");
+    }
+
+    // Toggle: al abrir, ocultamos dup/eliminar y la descripción; divider visible
+    // Al CERRAR sin guardar → resetear a valores persistidos
     details.addEventListener("toggle", () => {
       const open = details.open;
       btnDup.style.display = open ? "none" : "";
       btnDel.style.display = open ? "none" : "";
-      desc.hidden = open;                    // 🔹 como los tags en Materias
+      desc.hidden = open;
       btnEdit.textContent = open ? "✖️" : "✏️";
       btnEdit.title = open ? "Cerrar" : "Editar";
       divider.style.display = open ? "" : "none";
+
+      // Si se cierra sin guardar, resetea
+      if (!open && !hasSaved) {
+        resetInputsAndPreviewFromNode();
+      }
+      // Si se vuelve a abrir después de cerrar sin guardar, el draft ya está reseteado
     });
 
     listEl.appendChild(card);
@@ -318,20 +477,21 @@ function renderDomains({ openIndex = null, preserveOpen = true } = {}) {
     }
   });
 
-  btnAdd.disabled = false;
+btnAdd.disabled = false;
 }
 
 // ===== Crear nuevo Domain =====
 function createNewDomain() {
   const node = {
-    domain: "Nuevo tema",
+    domain: "Nuevo módulo",
     "domain-id": "",
     "domain-overview": "",
     "domain-image": "",
-    subdomains: [] // se mantiene por compatibilidad, pero no se edita aquí
+    "domain-order": String(DOMAINS.length + 1),
+    subdomains: []
   };
   DOMAINS.push(node);
-  return DOMAINS.length - 1; // índice
+  return DOMAINS.length - 1;
 }
 
 // ===== Eventos UI =====
@@ -341,16 +501,16 @@ btnAdd?.addEventListener("click", async (e) => {
     const idx = createNewDomain();
     await saveFullJson(RAW);
     renderDomains({ openIndex: idx });
-    toast("Tema creado.");
+    toast("Módulo creado.");
   } catch (err) {
     console.error(err);
-    alert("❌ Error creando el tema.");
+    alert("❌ Error creando el módulo.");
   }
 });
 
 // ===== Integración con el Core =====
 document.addEventListener("dataDock:sourceApplied", async (ev) => {
-  const src = ev.detail; // { id, label, url }
+  const src = ev.detail;
   if (!src?.url) return;
   CURRENT_URL = src.url;
   try {
@@ -362,21 +522,18 @@ document.addEventListener("dataDock:sourceApplied", async (ev) => {
   }
 });
 
-// Cuando otra sección guarda/cambia el JSON, recargamos si esta pestaña estuviera activa
 document.addEventListener("dataDock:sourceUpdated", async () => {
   const activeHash = (location.hash || "#dashboard").replace("#", "");
   if (activeHash !== "syllabus") return;
   const src = getAppliedSource();
   if (!src?.url) return;
 
-  // Intentar preservar aperturas por título
   const openTitles = Array.from(listEl.querySelectorAll("details.qa"))
-    .map((d, idx) => d.open ? trim(DOMAINS[idx]?.domain) : null)
-    .filter(Boolean);
+  .map((d, idx) => d.open ? trim(DOMAINS[idx]?.domain) : null)
+  .filter(Boolean);
 
   try {
     await loadFrom(src.url);
-    // Reabrir los que coincidan por título
     listEl.querySelectorAll("details.qa").forEach((d, idx) => {
       if (openTitles.includes(trim(DOMAINS[idx]?.domain))) d.open = true;
     });
@@ -385,7 +542,6 @@ document.addEventListener("dataDock:sourceUpdated", async () => {
   }
 });
 
-// Carga inicial si ya está activo el tab al entrar
 (function bootIfActive() {
   const isActive = document.querySelector('.nav .tab.active[data-tab="syllabus"]');
   if (!isActive) return;

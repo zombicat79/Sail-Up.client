@@ -2,7 +2,7 @@
 import express from "express";
 import path from "path";
 import { INN_VERSION, initKB } from "./common.js";
-import createAiDockRouter from "./ai-dock.js";
+import createAiDockRouter from "./ai-dock-router.js";
 import createDataDockRouter from "./data-dock.js";
 import createCaptainJsonRouter from "./captain-json.js";
 import createPirateCaveRouter from "./pirate-cave.js";

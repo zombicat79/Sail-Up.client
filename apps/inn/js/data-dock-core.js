@@ -2,8 +2,8 @@
 
 // 🔹 FUENTES (ids SIEMPRE únicos)
 const DATA_SOURCES = [
-  { id: "per-questions", label: "PER — Preguntas", url: "/data/sailup_per_syllabus_questions.json" },
-  { id: "pnb-questions", label: "PNB — Preguntas", url: "/data/sailup_pnb_syllabus_questions.json" },
+  { id: "per-syllabus", label: "PER — Preguntas", url: "/data/sailup_per_syllabus.json" },
+  { id: "pnb-syllabus", label: "PNB — Preguntas", url: "/data/sailup_pnb_syllabus.json" },
 ];
 
 // 🔹 LocalStorage keys

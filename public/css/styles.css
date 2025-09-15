@@ -95,7 +95,7 @@ body {
 
 /* === Títulos reutilizables === */
 .q-title, .title {
-  margin: 6px 0 4px;
+  margin: 6px 0 16px;
   font-size: 1.3rem;
   line-height: 1.35;
 }
@@ -266,7 +266,7 @@ h1.q-title, h1.title { font-size: 1.6rem; line-height: 1.4; }
 .preview-box {
   background: var(--panel-2); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 12px;
-  color: var(--text); font-family: monospace; font-size: 14px;
+  color: var(--text); font-size: 0.95rem; line-height: 1.5;
   overflow: auto; max-height: 60vh;
 }
 .preview-box.empty {
@@ -312,7 +312,7 @@ tr:nth-child(even) { background: #181a20; }
 }
 
 /* === Divider (línea separadora) === */
-.divider { border-bottom: 1px solid var(--border); margin: 16 0; }
+.divider { border-bottom: 1px solid var(--border); margin: 16px 0; }
 
 /* === Botones deshabilitados === */
 .btn:disabled,
@@ -753,4 +753,173 @@ tr:nth-child(even) { background: #181a20; }
 .muted { color: var(--muted); }
 
 .topics-editor { display: flex; flex-direction: column; gap: 16px; }
+
+/* ========= Data Dock · Editor (estilos nuevos) ========= */
+
+/* Toast genérico (reemplaza el inline del JS) */
+.toast{
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  z-index: 9999;
+  font-size: 0.95rem;
+}
+
+/* Cabecera de cada item (título + acciones) */
+.head-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+.head-left{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0; /* para elipsis del título */
+}
+.head-left .title{
+  margin: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Grupo de iconos inline (duplicar, borrar, editar) */
+.actions-inline{
+  display: flex;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+/* Make the in-details edit panel flat so it's not a box inside a box */
+.edit-panel{
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin-top: 16px; /* small breathing space below the summary */
+}
+
+/* Secciones del panel (bloques lógicos sin "dividers") */
+.edit-panel-section{
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 0 24px 0;
+  border-top: 1px solid var(--border);
+}
+
+/* Space between label and its input/textarea */
+.edit-panel-section label.title-smaller {
+  display: block;
+  margin-bottom: 8px;   
+  font-weight: 600;         
+}
+
+
+/* Footer del panel (acciones finales) */
+.edit-panel-footer{
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+/* Fila del toggle de imagen dentro del panel */
+.image-toggle{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* En móviles, que todo respire y no se rompa la fila de botones */
+@media (max-width: 720px){
+  .head-row{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .actions-inline{
+    justify-content: flex-end;
+  }
+  .edit-panel{
+    padding: 10px;
+  }
+}
+
+/* Opcional: asegurar tamaño de los icon buttons dentro del editor */
+.qa .icon-btn{
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  line-height: 1;
+}
+
+/* === AI Dock (scope local) === */
+.ai-dock .mt-block { margin-top: 12px; }
+
+/* Campos del formulario (crear prompt) – scopeados */
+.ai-dock .input-inline { display: flex; gap: 8px; align-items: end; }
+.ai-dock .field { display: flex; flex-direction: column; gap: 6px; min-width: 260px; }
+.ai-dock .field .label { font-size: .95rem; color: var(--text); font-weight: 600; }
+
+.ai-dock .field input[type="text"],
+.ai-dock .field select,
+.ai-dock .field textarea {
+  height: var(--control-height);
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.ai-dock .field textarea {
+  min-height: 120px;
+  padding: 12px;
+  line-height: 1.4;
+}
+
+.ai-dock .input-inline > .btn {
+  height: var(--control-height);
+}
+
+.form-section{
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.actions-footer {
+  display: flex;
+  margin-bottom: 16px;
+  justify-content: flex-end;
+}
+
+.title-feedback {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title-feedback #status {
+  margin: 0;
+}
+
+#validationSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 

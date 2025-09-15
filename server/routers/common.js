@@ -4,7 +4,7 @@ import path from "path";
 import multer from "multer";
 import { loadKB, retrieveTopK } from "../../apps/inn/js/ai-dock-kb.js";
 
-export const INN_VERSION = "Beta v0.6.0"; // bump centralizado
+export const INN_VERSION = "Beta v0.6.1"; // bump centralizado
 
 /* =========================
    Upload (compartido)

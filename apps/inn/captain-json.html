@@ -1,318 +1,669 @@
-    <!DOCTYPE html>
-    <html lang="es">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <title>SailUp Inn</title>
-      <link rel="icon" href="assets/img/favicon.ico" type="image/x-icon">
-      <link rel="stylesheet" href="/css/styles.css">
-      <link rel="stylesheet" href="/css/inn.css">
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    </head>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SailUp Inn</title>
+  <link rel="icon" href="assets/img/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/inn.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    /* Vista previa tabular (simple) */
+    .table-preview { width:100%; border-collapse: collapse; }
+    .table-preview th, .table-preview td {
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      font-size: 0.95rem;
+      vertical-align: top;
+    }
+    .table-preview thead th {
+      position: sticky; top: 0; background: var(--panel-2);
+    }
+    .preview-scroll { overflow:auto; max-height: 420px; }
+  </style>
+</head>
 
-    <body>
-      <!-- Header compartido -->
-      <div id="header-placeholder"></div>
+<body>
+  <!-- Header compartido -->
+  <div id="header-placeholder"></div>
 
-      <main class="chat">
-        <!-- Intro -->
-        <div class="msg">
-          <div class="msg-inner">
-            <h1 class="title">📜 Captain JSON™</h1>
-            <p class="intro">
-              En el bureau del Capitán JSON, la tripulación inspecciona cada carga para asegurar que todo esté en orden antes de zarpar. Aquí tu archivo Excel se convierte en un JSON estructurado, revisado y listo para navegar. Supervisa el cargamento en la vista previa y descarga el resultado final para importarlo a SailUp.
-            </p>
-          </div>
+  <main class="chat">
+    <!-- Intro -->
+    <div class="msg">
+      <div class="msg-inner">
+        <h1 class="title">📜 Captain JSON™</h1>
+        <p class="intro">
+          En el bureau del Capitán JSON, el personal se asegura de que toda mercancía que entra y sale de SailUp cumpla con los estándares establecidos. Aquí podrás importar datos externos en formato Excel (.xlsx) y convertirlos a JSON listo para consumir; o, viceversa, cargar datos en formato JSON y exportarlos a Excel para su uso fuera de SailUp (backups, repositorio, etc.).
+      </div>
+    </div>
+
+    <!-- Upload -->
+    <div class="msg">
+      <div class="msg-inner">
+        <h2 class="title">📂 Subir archivo</h2>
+        <form id="uploadForm" class="actions upload-group">
+          <label class="file-btn">
+            Seleccionar archivo
+            <!-- Acepta XLSX y JSON -->
+            <input type="file" id="inputFile" accept=".xlsx,.json" hidden />
+          </label>
+          <input type="text" id="fileName" class="file-name" placeholder="Ningún archivo seleccionado" readonly />
+          <button type="button" id="processBtn" class="btn btn-primary" disabled>Procesar archivo</button>
+        </form>
+        <div id="error" class="error mt-block"></div>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="msg">
+      <div class="msg-inner">
+        <h2 class="title">📊 Vista previa</h2>
+        <div id="jsonPreview" class="preview-box empty mt-block">
+          <pre id="output" style="display:none;"></pre>
+          <div id="tablePreview" class="preview-scroll" style="display:none;"></div>
         </div>
-
-        <!-- Upload -->
-        <div class="msg">
-          <div class="msg-inner">
-            <h2 class="title">📂 Subir archivo Excel</h2>
-            <form id="uploadForm" class="actions upload-group">
-              <label class="file-btn">
-                Seleccionar archivo
-                <input type="file" id="inputFile" accept=".xlsx" hidden />
-              </label>
-              <input type="text" id="fileName" class="file-name" placeholder="Ningún archivo seleccionado" readonly />
-              <button type="button" id="generateBtn" class="btn btn-primary" disabled>Generar JSON</button>
-            </form>
-            <div id="error" class="error mt-block"></div>
-          </div>
+        <div class="actions right mt-block">
+          <button class="btn btn-primary" id="downloadBtn" disabled>⬇️ Descargar archivo</button>
         </div>
+      </div>
+    </div>
+  </main>
 
-        <!-- JSON Preview -->
-        <div class="msg">
-          <div class="msg-inner">
-            <h2 class="title">📊 Vista previa JSON</h2>
-            <div id="jsonPreview" class="preview-box empty mt-block">
-              <pre id="output"></pre>
-            </div>
-            <div class="actions right mt-block">
-              <button class="btn btn-primary" id="downloadBtn" disabled>⬇️ Descargar JSON</button>
-            </div>
-          </div>
-        </div>
-      </main>
+  <script src="/components/header.js"></script>
 
-      <script src="/components/header.js"></script>
+  <script>
+    let workbook;           // XLSX workbook cuando el input es .xlsx
+    let generatedJSON = null;
+    let generatedWB   = null; // XLSX workbook cuando el input es .json
+    let jsonFileName  = "output.json";
+    let xlsxFileName  = "output.xlsx";
+    let currentMode   = null; // "xlsx->json" | "json->xlsx"
 
-      <script>
-        let workbook;
-        let generatedJSON = null;
-        let jsonFileName = "output.json";
+    const fileInput    = document.getElementById("inputFile");
+    const fileNameEl   = document.getElementById("fileName");
+    const errorEl      = document.getElementById("error");
+    const outputEl     = document.getElementById("output");
+    const tablePreview = document.getElementById("tablePreview");
+    const jsonPreview  = document.getElementById("jsonPreview");
+    const processBtn   = document.getElementById("processBtn");
+    const downloadBtn  = document.getElementById("downloadBtn");
 
-        const fileInput   = document.getElementById("inputFile");
-        const fileNameEl  = document.getElementById("fileName");
-        const errorEl     = document.getElementById("error");
-        const outputEl    = document.getElementById("output");
-        const jsonPreview = document.getElementById("jsonPreview");
-        const generateBtn = document.getElementById("generateBtn");
-        const downloadBtn = document.getElementById("downloadBtn");
+    fileInput.addEventListener("change", handleFile, false);
+    processBtn.addEventListener("click", onProcess);
+    downloadBtn.addEventListener("click", onDownload);
 
-        fileInput.addEventListener("change", handleFile, false);
-        generateBtn.addEventListener("click", onGenerate);
-        downloadBtn.addEventListener("click", downloadJSON);
+    function resetPreview() {
+      outputEl.textContent = "";
+      outputEl.style.display = "none";
+      tablePreview.innerHTML = "";
+      tablePreview.style.display = "none";
+      jsonPreview.classList.add("empty");
+      downloadBtn.disabled = true;
+      generatedJSON = null;
+      generatedWB = null;
+      workbook = null;
+      currentMode = null;
+      errorEl.textContent = "";
+    }
 
-        function resetPreview() {
-          outputEl.textContent = "";
-          jsonPreview.classList.add("empty");
-          downloadBtn.disabled = true;
-          generatedJSON = null;
-        }
+    function handleFile(e) {
+      const file = e.target.files[0];
+      resetPreview();
+      processBtn.disabled = true;
 
-        function handleFile(e) {
-          const file = e.target.files[0];
-          errorEl.textContent = "";
-          resetPreview();
-          generateBtn.disabled = true;
+      if (!file) {
+        fileNameEl.value = "Ningún archivo seleccionado";
+        return;
+      }
 
-          if (!file) {
-            fileNameEl.value = "Ningún archivo seleccionado";
-            workbook = null;
-            return;
-          }
+      const name = file.name;
+      fileNameEl.value = name;
+      const lower = name.toLowerCase();
+      const baseName = name.replace(/\.[^/.]+$/, "");
+      jsonFileName = baseName + ".json";
+      xlsxFileName = baseName + ".xlsx";
 
-          fileNameEl.value = file.name;
-          const baseName = file.name.replace(/\.[^/.]+$/, "");
-          jsonFileName = baseName + ".json";
-
-          const reader = new FileReader();
-          reader.onload = function(ev) {
-            try {
-              const data = new Uint8Array(ev.target.result);
-              workbook = XLSX.read(data, { type: "array" });
-              generateBtn.disabled = false;
-            } catch (err) {
-              workbook = null;
-              errorEl.textContent = "❌ No se pudo leer el archivo. Verifica que sea un .xlsx válido.";
-              generateBtn.disabled = true;
-            }
-          };
-          reader.onerror = function() {
-            workbook = null;
-            errorEl.textContent = "❌ Error leyendo el archivo.";
-            generateBtn.disabled = true;
-          };
-          reader.readAsArrayBuffer(file);
-        }
-
-        function onGenerate() {
-          errorEl.textContent = "";
-          resetPreview();
-          if (!workbook) {
-            errorEl.textContent = "⚠️ Por favor, sube primero un archivo Excel.";
-            return;
-          }
+      if (lower.endsWith(".xlsx")) {
+        // Modo XLSX -> JSON
+        currentMode = "xlsx->json";
+        const reader = new FileReader();
+        reader.onload = function(ev) {
           try {
-            generatedJSON = buildJsonFromWorkbook(workbook);
-            outputEl.textContent = JSON.stringify(generatedJSON, null, 2);
-            jsonPreview.classList.remove("empty");
-            downloadBtn.disabled = false;
-          } catch (e) {
-            console.error(e);
-            errorEl.textContent = "❌ " + (e.message || "Error generando el JSON.");
+            const data = new Uint8Array(ev.target.result);
+            workbook = XLSX.read(data, { type: "array" });
+            processBtn.disabled = false;
+          } catch (err) {
+            errorEl.textContent = "❌ No se pudo leer el archivo Excel.";
           }
-        }
-
-        function downloadJSON() {
-          if (!generatedJSON) {
-            errorEl.textContent = "⚠️ Primero genera el JSON.";
-            return;
-          }
-          const blob = new Blob([JSON.stringify(generatedJSON, null, 2)], { type: "application/json" });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = jsonFileName;
-          a.click();
-          URL.revokeObjectURL(url);
-        }
-
-        /* ============================
-           Conversión XLSX → JSON nuevo
-           ============================ */
-
-        const STR = v => (v == null ? "" : String(v).trim());
-        const BOOL = v => {
-          const s = STR(v).toLowerCase();
-          if (!s) return false;
-          return ["1","true","sí","si","y","yes","x"].includes(s);
         };
+        reader.onerror = function() {
+          errorEl.textContent = "❌ Error leyendo el archivo Excel.";
+        };
+        reader.readAsArrayBuffer(file);
+      } else if (lower.endsWith(".json")) {
+        // Modo JSON -> XLSX
+        currentMode = "json->xlsx";
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          try {
+            // Validar que sea JSON
+            const raw = ev.target.result;
+            const parsed = JSON.parse(raw);
+            // Guardamos el JSON (ya procesado en onProcess)
+            generatedJSON = parsed;
+            processBtn.disabled = false;
+          } catch (err) {
+            errorEl.textContent = "❌ El archivo no es un JSON válido.";
+          }
+        };
+        reader.onerror = function() {
+          errorEl.textContent = "❌ Error leyendo el archivo JSON.";
+        };
+        reader.readAsText(file, "utf-8");
+      } else {
+        errorEl.textContent = "⚠️ Formato no soportado. Selecciona un .xlsx o .json";
+      }
+    }
 
-        function readSheet(ws, opts = {}) {
-          if (!ws) return [];
-          return XLSX.utils.sheet_to_json(ws, { defval: "", raw: false, ...opts });
+    function onProcess() {
+      errorEl.textContent = "";
+      if (!currentMode) {
+        errorEl.textContent = "⚠️ Selecciona primero un archivo .xlsx o .json";
+        return;
+      }
+
+      try {
+        if (currentMode === "xlsx->json") {
+          // Generar JSON desde workbook
+          generatedJSON = buildJsonFromWorkbook(workbook);
+          // Vista previa JSON
+          outputEl.textContent = JSON.stringify(generatedJSON, null, 2);
+          outputEl.style.display = "";
+          tablePreview.style.display = "none";
+          jsonPreview.classList.remove("empty");
+          downloadBtn.disabled = false;
+        } else {
+          // json->xlsx: generamos workbook desde JSON
+          if (!generatedJSON) throw new Error("No se ha leído el JSON.");
+          generatedWB = buildWorkbookFromJson(generatedJSON);
+          // Vista previa tabular (primeras filas de todas las hojas de preguntas)
+          const flatPreview = flattenJsonToRows(generatedJSON);
+          renderTablePreview(flatPreview.columns, flatPreview.rows.slice(0, 200));
+          outputEl.style.display = "none";
+          tablePreview.style.display = "";
+          jsonPreview.classList.remove("empty");
+          downloadBtn.disabled = false;
         }
+      } catch (e) {
+        console.error(e);
+        errorEl.textContent = "❌ " + (e.message || "Error procesando el archivo.");
+      }
+    }
 
-        function buildJsonFromWorkbook(wb) {
-      // 1) SYLLABUS (una fila)
-          const syllabusRows = readSheet(wb.Sheets["syllabus"]);
-          if (!syllabusRows.length) throw new Error("Falta la hoja 'syllabus'.");
-          const s0 = syllabusRows[0] || {};
-          const syllabus = {
-            course:            STR(s0["course"]),
-            "course-overview": STR(s0["course-overview"]),
-            "course-image":    STR(s0["course-image"]),
-            scope:             STR(s0["scope"]),
-            language:          STR(s0["language"]),
-            domains: []
-          };
+    function onDownload() {
+      if (currentMode === "xlsx->json") {
+        if (!generatedJSON) {
+          errorEl.textContent = "⚠️ Genera el JSON primero.";
+          return;
+        }
+        const blob = new Blob([JSON.stringify(generatedJSON, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = jsonFileName;
+        a.click();
+        URL.revokeObjectURL(url);
+      } else if (currentMode === "json->xlsx") {
+        if (!generatedWB) {
+          errorEl.textContent = "⚠️ Genera el XLSX primero.";
+          return;
+        }
+        const wbout = XLSX.write(generatedWB, { bookType: "xlsx", type: "array" });
+        const blob = new Blob([wbout], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = xlsxFileName;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    }
 
-      // 2) DOMAINS: catálogo con meta y orden
-          const domainsRows = readSheet(wb.Sheets["domains"]);
+    /* ============================
+       Conversión XLSX → JSON (configurable y limpio)
+       ============================ */
+
+    // ---- Helpers de tipos/lectura ----
+    const STR  = v => (v == null ? "" : String(v).trim());
+    const NUM  = v => {
+      const s = STR(v); if (!s) return null;
+      const n = parseInt(s, 10); return Number.isFinite(n) ? n : null;
+    };
+    const BOOL = v => {
+      const s = STR(v).toLowerCase();
+      if (!s) return false;
+      return ["1","true","sí","si","y","yes","x"].includes(s);
+    };
+    const readSheet = (ws) => ws ? XLSX.utils.sheet_to_json(ws, { defval: "", raw: false }) : [];
+
+    // ORDEN de claves (solo afecta a cómo construimos los objetos finales)
+    const DOMAIN_KEYS_ORDER    = ["domain-id", "domain-order", "domain", "domain-overview", "domain-image", "subdomains"];
+    const SUBDOMAIN_KEYS_ORDER = ["subdomain-order", "subdomain", "topics"];
+    const TOPIC_KEYS_ORDER     = ["topic-order", "topic", "items"];
+    const ITEM_KEYS_ORDER      = ["question-id", "type", "question-image", "question-image-url", "question", "options", "summary"];
+
+    function buildOrderedObject(order, sources) {
+      const obj = {};
+      for (const key of order) {
+        if (!(key in sources)) continue;
+        const valOrFn = sources[key];
+        obj[key] = (typeof valOrFn === "function") ? valOrFn() : valOrFn;
+      }
+      return obj;
+    }
+
+    function cmpByOrderThenAlpha(getOrder, getName) {
+      return (a, b) => {
+        const oa = getOrder(a), ob = getOrder(b);
+        const na = (oa == null), nb = (ob == null);
+        if (!na && !nb && oa !== ob) return oa - ob;
+        if (!na &&  nb) return -1;
+        if ( na && !nb) return  1;
+        return STR(getName(a)).localeCompare(STR(getName(b)), "es");
+      };
+    }
+
+    function buildJsonFromWorkbook(wb) {
+      // 1) SYLLABUS
+      const sRows = readSheet(wb.Sheets["syllabus"]);
+      if (!sRows.length) throw new Error("Falta la hoja 'syllabus'.");
+      const s0 = sRows[0] || {};
+      const syllabus = {
+        course:            STR(s0["course"]),
+        "course-overview": STR(s0["course-overview"]),
+        "course-image":    STR(s0["course-image"]),
+        scope:             STR(s0["scope"]),
+        language:          STR(s0["language"]),
+        domains: []
+      };
+
+      // 2) DOMAINS
+      const domainsRows = readSheet(wb.Sheets["domains"]);
       const domainCatalog = new Map(); // domain-id -> meta
-      const domainOrder   = [];        // orden tal cual aparece en la hoja 'domains'
-      for (const r of domainsRows) {
+      const domainOrderRecords = [];   // para ordenar por domain-order
+
+      domainsRows.forEach((r, idx) => {
         const id = STR(r["domain-id"]);
-        if (!id) continue;
-        domainCatalog.set(id, {
-          "domain-id": id,
-          domain:            STR(r["domain"]),
+        if (!id) return;
+        const meta = {
+          "domain-id":       id,
+          "domain-order":    NUM(r["domain-order"]),
+          "domain":          STR(r["domain"]),
           "domain-overview": STR(r["domain-overview"]),
           "domain-image":    STR(r["domain-image"])
-        });
-        domainOrder.push(id);
-      }
+        };
+        domainCatalog.set(id, meta);
+        domainOrderRecords.push({ id, order: meta["domain-order"], idx });
+      });
 
-      // 3) AGRUPACIÓN por hoja (el nombre de la hoja ES el domain-id)
+      // 3) AGRUPACIÓN por hoja (nombre de hoja = domain-id)
       const IGNORE = new Set(["syllabus", "domains"]);
-      const grouped = new Map(); // domainId -> subdomain -> topic -> items[]
-
       const sheetNames = wb.SheetNames.filter(n => !IGNORE.has(n));
-      if (!sheetNames.length) {
-        throw new Error("No se encontraron hojas de preguntas (además de 'syllabus' y 'domains').");
-      }
+      if (!sheetNames.length) throw new Error("No se encontraron hojas de preguntas (además de 'syllabus' y 'domains').");
+
+      const grouped = new Map(); // domainId -> Map(subdomain -> Map(topic -> items[]))
+      const subOrders   = new Map(); // domainId -> Map(subdomain -> order)
+      const topicOrders = new Map(); // domainId -> Map(subdomain -> Map(topic -> order))
 
       for (const sheetName of sheetNames) {
         const domainId = STR(sheetName);
         const rows = readSheet(wb.Sheets[sheetName]);
 
-        for (const r of rows) {
+        rows.forEach((r) => {
           const subdomain = STR(r["subdomain"]);
           const topic     = STR(r["topic"]);
+          if (!subdomain || !topic) return;
 
-          // 🔹 Aquí es donde puedes validar el domain-id de la fila
-          const rowDomainId = STR(r["domain-id"]);
-          if (rowDomainId && rowDomainId !== domainId) {
-            console.warn(`Fila con domain-id=${rowDomainId} en hoja ${domainId}: se ignora y se usa ${domainId}.`);
-          }
-
-          // Campos de pregunta
-          const item = {
-            Type: STR(r["type"]) || "DEFINITION",
-            "question-image":     BOOL(r["question-image"]),
-            "question-image-url": STR(r["question-image-url"]),
-            question:             STR(r["question"]),
-            
-            options: [
-              { "option1-text": STR(r["option1-text"]), "option1-correct": true },
-              { "option2-text": STR(r["option2-text"]), "option2-correct": false },
-              { "option3-text": STR(r["option3-text"]), "option3-correct": false },
-              { "option4-text": STR(r["option4-text"]), "option4-correct": false }
-            ],
-
-            summary: {
-              "summary1": STR(r["summary1"]),
-              "summary2": STR(r["summary2"]),
-              "summary3": STR(r["summary3"]),
-              "summary4": STR(r["summary4"])
-            }
-          };
-
-          // Filtra filas vacías: sin pregunta y sin ninguna opción con texto
-          const hasQ = item.question.length > 0;
-          const hasAnyOpt =
-          STR(item.options[0]["option1-text"]).length ||
-          STR(item.options[1]["option2-text"]).length ||
-          STR(item.options[2]["option3-text"]).length ||
-          STR(item.options[3]["option4-text"]).length;
-          if (!subdomain || !topic || (!hasQ && !hasAnyOpt)) continue;
-
-          // Inserción en la estructura
+          // contenedores
           if (!grouped.has(domainId)) grouped.set(domainId, new Map());
           const subMap = grouped.get(domainId);
           if (!subMap.has(subdomain)) subMap.set(subdomain, new Map());
           const topicMap = subMap.get(subdomain);
           if (!topicMap.has(topic)) topicMap.set(topic, []);
-          topicMap.get(topic).push(item);
 
-          // Si el dominio de esta hoja no está en el catálogo, crear meta mínima
+          // órdenes (primera aparición manda)
+          if (!subOrders.has(domainId)) subOrders.set(domainId, new Map());
+          const subOrdMap = subOrders.get(domainId);
+          if (!subOrdMap.has(subdomain)) subOrdMap.set(subdomain, NUM(r["subdomain-order"]));
+
+          if (!topicOrders.has(domainId)) topicOrders.set(domainId, new Map());
+          const bySub = topicOrders.get(domainId);
+          if (!bySub.has(subdomain)) bySub.set(subdomain, new Map());
+          const tOrdMap = bySub.get(subdomain);
+          if (!tOrdMap.has(topic)) tOrdMap.set(topic, NUM(r["topic-order"]));
+
+          // item si hay contenido
+          const item = buildItemFromRow(r);
+          const hasQ = STR(item.question).length > 0;
+          const options = Array.isArray(item.options) ? item.options : [];
+          const hasAnyOpt = options.some((opt, i) => STR(opt?.[`option${i+1}-text`]).length > 0);
+          if (hasQ || hasAnyOpt) {
+            topicMap.get(topic).push(item);
+          }
+
+          // meta mínima de domain si no está en catálogo
           if (!domainCatalog.has(domainId)) {
-            // Nombre “bonito” si no hay 'domain' en la hoja domains
             const pretty = domainId.replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim();
-            const titled = pretty.charAt(0).toUpperCase() + pretty.slice(1);
+            const titled = pretty ? (pretty[0].toUpperCase() + pretty.slice(1)) : domainId;
             domainCatalog.set(domainId, {
-              "domain-id": domainId,
-              domain: titled,
+              "domain-id":       domainId,
+              "domain-order":    null,
+              "domain":          titled,
               "domain-overview": "",
-              "domain-image": ""
+              "domain-image":    ""
             });
-            domainOrder.push(domainId);
+            domainOrderRecords.push({ id: domainId, order: null, idx: Number.MAX_SAFE_INTEGER });
           }
-        }
-      }
-
-      // 4) Construir syllabus.domains siguiendo el orden de 'domains' y luego extras
-      const domainsOut = [];
-      const emitted = new Set();
-
-      function emitDomain(id) {
-        if (emitted.has(id)) return;
-        const meta = domainCatalog.get(id);
-        if (!meta) return;
-
-        const subdomainsOut = [];
-        const subMap = grouped.get(id);
-        if (subMap) {
-          const subNames = Array.from(subMap.keys()).sort((a,b)=>a.localeCompare(b,"es"));
-          for (const sName of subNames) {
-            const topicMap = subMap.get(sName);
-            const topicNames = Array.from(topicMap.keys()).sort((a,b)=>a.localeCompare(b,"es"));
-            subdomainsOut.push({
-              subdomain: sName,
-              topics: topicNames.map(tName => ({ topic: tName, items: topicMap.get(tName) || [] }))
-            });
-          }
-        }
-
-        domainsOut.push({
-          "domain-id": meta["domain-id"],
-          domain: meta.domain,
-          "domain-overview": meta["domain-overview"],
-          "domain-image": meta["domain-image"],
-          subdomains: subdomainsOut
         });
-        emitted.add(id);
       }
 
-      domainOrder.forEach(emitDomain);           // primero, orden catálogo
-      Array.from(grouped.keys()).forEach(emitDomain); // después, dominios solo presentes en preguntas
+      // 4) Construcción final
+      const domainsOut = [];
+      domainOrderRecords
+        .sort(cmpByOrderThenAlpha(
+          rec => rec.order,
+          rec => domainCatalog.get(rec.id)?.domain || ""
+        ))
+        .forEach(({ id }) => {
+          const meta   = domainCatalog.get(id);
+          const subMap = grouped.get(id);
+          const subdomainsOut = [];
+
+          if (subMap) {
+            const subList = Array.from(subMap.keys());
+            subList.sort(cmpByOrderThenAlpha(
+              name => subOrders.get(id)?.get(name),
+              name => name
+            ));
+            subList.forEach((sName) => {
+              const topicsMap  = subMap.get(sName);
+              const topicsList = Array.from(topicsMap.keys());
+              topicsList.sort(cmpByOrderThenAlpha(
+                tName => topicOrders.get(id)?.get(sName)?.get(tName),
+                tName => tName
+              ));
+
+              const topicsOut = topicsList.map(tName => buildOrderedObject(
+                TOPIC_KEYS_ORDER,
+                {
+                  "topic-order": () => topicOrders.get(id)?.get(sName)?.get(tName) ?? null,
+                  "topic":       tName,
+                  "items":       topicsMap.get(tName) || []
+                }
+              ));
+
+              subdomainsOut.push(buildOrderedObject(
+                SUBDOMAIN_KEYS_ORDER,
+                {
+                  "subdomain-order": () => subOrders.get(id)?.get(sName) ?? null,
+                  "subdomain":       sName,
+                  "topics":          topicsOut
+                }
+              ));
+            });
+          }
+
+          domainsOut.push(buildOrderedObject(
+            DOMAIN_KEYS_ORDER,
+            {
+              "domain-id":       meta["domain-id"],
+              "domain-order":    meta["domain-order"] ?? null,
+              "domain":          meta["domain"],
+              "domain-overview": meta["domain-overview"],
+              "domain-image":    meta["domain-image"],
+              "subdomains":      subdomainsOut
+            }
+          ));
+        });
 
       syllabus.domains = domainsOut;
       return { syllabus };
     }
 
+    function buildItemFromRow(r) {
+      const options = [];
+      for (let i = 1; i <= 4; i++) {
+        const textKey = `option${i}-text`;
+        const okKey   = `option${i}-correct`;
+        options.push({
+          [textKey]: STR(r[textKey]),
+          [okKey]:   STR(r[okKey]) !== "" ? BOOL(r[okKey]) : (i === 1)
+        });
+      }
+      const summary = {
+        "summary1": STR(r["summary1"]),
+        "summary2": STR(r["summary2"]),
+        "summary3": STR(r["summary3"]),
+        "summary4": STR(r["summary4"]),
+      };
+      return buildOrderedObject(
+        ITEM_KEYS_ORDER,
+        {
+          "question-id":        STR(r["question-id"]),
+          "type":               STR(r["type"]) || "DEFINITION",
+          "question-image":     BOOL(r["question-image"]),
+          "question-image-url": STR(r["question-image-url"]),
+          "question":           STR(r["question"]),
+          "options":            options,
+          "summary":            summary
+        }
+      );
+    }
+
+    /* ============================
+       Conversión JSON → XLSX
+       ============================ */
+
+    // Para XLSX por dominio: columnas estándar para la hoja del dominio
+    const DOMAIN_SHEET_COLUMNS = [
+      "subdomain-order","subdomain",
+      "topic-order","topic",
+      "question-id","type","question-image","question-image-url","question",
+      "option1-text","option1-correct",
+      "option2-text","option2-correct",
+      "option3-text","option3-correct",
+      "option4-text","option4-correct",
+      "summary1","summary2","summary3","summary4"
+    ];
+
+    function buildWorkbookFromJson(payload) {
+      const wb = XLSX.utils.book_new();
+
+      // 1) syllabus (una fila)
+      const s = payload?.syllabus || {};
+      const syllabusRow = [{
+        course:            s.course || "",
+        "course-overview": s["course-overview"] || "",
+        "course-image":    s["course-image"] || "",
+        scope:             s.scope || "",
+        language:          s.language || ""
+      }];
+      const wsSyllabus = XLSX.utils.json_to_sheet(syllabusRow);
+      XLSX.utils.book_append_sheet(wb, wsSyllabus, "syllabus");
+
+      // 2) domains (una fila por domain)
+      const domains = Array.isArray(s.domains) ? s.domains : [];
+      const domainsRows = domains.map(d => ({
+        "domain-id":       d["domain-id"] ?? "",
+        "domain-order":    (d["domain-order"] ?? null),
+        "domain":          d.domain ?? "",
+        "domain-overview": d["domain-overview"] ?? "",
+        "domain-image":    d["domain-image"] ?? ""
+      }));
+      const wsDomains = XLSX.utils.json_to_sheet(domainsRows);
+      XLSX.utils.book_append_sheet(wb, wsDomains, "domains");
+
+      // 3) Hojas por dominio
+      for (const d of domains) {
+        const domainId = (d && d["domain-id"]) ? String(d["domain-id"]).trim() : "";
+        if (!domainId) continue;
+
+        const rows = flattenDomainToRows(d); // filas para este dominio
+        const ws = XLSX.utils.json_to_sheet(rows, { header: DOMAIN_SHEET_COLUMNS });
+        // Forzar encabezados en el orden definido
+        XLSX.utils.sheet_add_aoa(ws, [DOMAIN_SHEET_COLUMNS], { origin: "A1" });
+        XLSX.utils.book_append_sheet(wb, ws, safeSheetName(domainId));
+      }
+
+      return wb;
+    }
+
+    function flattenDomainToRows(domainNode) {
+      const out = [];
+      const subdomains = Array.isArray(domainNode?.subdomains) ? domainNode.subdomains : [];
+      for (const sub of subdomains) {
+        const sName = STR(sub?.subdomain);
+        const sOrder = (sub?.["subdomain-order"] ?? null);
+        const topics = Array.isArray(sub?.topics) ? sub.topics : [];
+        if (!topics.length) {
+          // Fila vacía para subdomain sin topics
+          out.push(rowFromPieces(sOrder, sName, null, "", null));
+          continue;
+        }
+        for (const t of topics) {
+          const tName = STR(t?.topic);
+          const tOrder = (t?.["topic-order"] ?? null);
+          const items = Array.isArray(t?.items) ? t.items : [];
+          if (!items.length) {
+            // Fila vacía para topic sin items
+            out.push(rowFromPieces(sOrder, sName, tOrder, tName, null));
+            continue;
+          }
+          for (const it of items) {
+            out.push(rowFromPieces(sOrder, sName, tOrder, tName, it));
+          }
+        }
+      }
+      return out;
+    }
+
+    function rowFromPieces(sOrder, sName, tOrder, tName, item) {
+      const base = {
+        "subdomain-order": sOrder ?? null,
+        "subdomain":       sName || "",
+        "topic-order":     tOrder ?? null,
+        "topic":           tName || "",
+        "question-id":     "",
+        "type":            "",
+        "question-image":  "",
+        "question-image-url": "",
+        "question":        "",
+        "option1-text": "", "option1-correct": "",
+        "option2-text": "", "option2-correct": "",
+        "option3-text": "", "option3-correct": "",
+        "option4-text": "", "option4-correct": "",
+        "summary1": "", "summary2": "", "summary3": "", "summary4": ""
+      };
+      if (!item) return base;
+
+      // Rellena desde el item
+      base["question-id"]        = STR(item["question-id"]);
+      base["type"]               = STR(item["type"]);
+      base["question-image"]     = item["question-image"] === true ? true : (item["question-image"] === false ? false : STR(item["question-image"]));
+      base["question-image-url"] = STR(item["question-image-url"]);
+      base["question"]           = STR(item["question"]);
+
+      const opts = Array.isArray(item.options) ? item.options : [];
+      for (let i=1;i<=4;i++){
+        const o = opts[i-1] || {};
+        base[`option${i}-text`]    = STR(o[`option${i}-text`]);
+        base[`option${i}-correct`] = (o[`option${i}-correct`] === true || o[`option${i}-correct`] === false)
+          ? o[`option${i}-correct`]
+          : STR(o[`option${i}-correct`]);
+      }
+
+      const sum = (item.summary && typeof item.summary === "object") ? item.summary : {};
+      base["summary1"] = STR(sum["summary1"]);
+      base["summary2"] = STR(sum["summary2"]);
+      base["summary3"] = STR(sum["summary3"]);
+      base["summary4"] = STR(sum["summary4"]);
+
+      return base;
+    }
+
+    function safeSheetName(name) {
+      // Limpia caracteres no válidos para nombres de hoja en Excel
+      let s = String(name || "").slice(0, 31); // máx 31 chars
+      s = s.replace(/[:\\/?*\[\]]/g, "-");
+      s = s.replace(/^\s+|\s+$/g, "");
+      return s || "sheet";
+    }
+
+    // Vista previa tabular (para JSON->XLSX)
+    function flattenJsonToRows(payload) {
+      const cols = DOMAIN_SHEET_COLUMNS.slice();
+      const rows = [];
+      const domains = Array.isArray(payload?.syllabus?.domains) ? payload.syllabus.domains : [];
+      for (const d of domains) {
+        const domainId = d?.["domain-id"] || "";
+        const subdomains = Array.isArray(d?.subdomains) ? d.subdomains : [];
+        if (!subdomains.length) {
+          rows.push({ __sheet: domainId, ...rowFromPieces(null, "", null, "", null) });
+          continue;
+        }
+        for (const s of subdomains) {
+          const topics = Array.isArray(s?.topics) ? s.topics : [];
+          if (!topics.length) {
+            rows.push({ __sheet: domainId, ...rowFromPieces(s["subdomain-order"], s.subdomain, null, "", null) });
+            continue;
+          }
+          for (const t of topics) {
+            const items = Array.isArray(t?.items) ? t.items : [];
+            if (!items.length) {
+              rows.push({ __sheet: domainId, ...rowFromPieces(s["subdomain-order"], s.subdomain, t["topic-order"], t.topic, null) });
+              continue;
+            }
+            for (const it of items) {
+              rows.push({ __sheet: domainId, ...rowFromPieces(s["subdomain-order"], s.subdomain, t["topic-order"], t.topic, it) });
+            }
+          }
+        }
+      }
+      // Añadimos columna de hoja
+      return { columns: ["__sheet", ...cols], rows };
+    }
+
+    function renderTablePreview(columns, rows) {
+      const table = document.createElement("table");
+      table.className = "table-preview";
+      const thead = document.createElement("thead");
+      const trh = document.createElement("tr");
+      columns.forEach(c => {
+        const th = document.createElement("th");
+        th.textContent = c;
+        trh.appendChild(th);
+      });
+      thead.appendChild(trh);
+      const tbody = document.createElement("tbody");
+      rows.forEach(r => {
+        const tr = document.createElement("tr");
+        columns.forEach(c => {
+          const td = document.createElement("td");
+          let val = r[c];
+          if (typeof val === "boolean") val = val ? "TRUE" : "FALSE";
+          td.textContent = (val == null) ? "" : String(val);
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      table.innerHTML = "";
+      table.appendChild(thead);
+      table.appendChild(tbody);
+
+      tablePreview.innerHTML = "";
+      tablePreview.appendChild(table);
+    }
   </script>
 </body>
 </html>

@@ -8,7 +8,7 @@ import mainRouter from "./routers/main.js";
 import createInnRouter from "./routers/inn.js";
 
 import createPirateCaveRouter from "./routers/pirate-cave.js";
-import createAiDockRouter from "./routers/ai-dock.js";
+import createAiDockRouter from "./routers/ai-dock-router.js";
 import createDataDockRouter from "./routers/data-dock.js";
 import createCaptainJsonRouter from "./routers/captain-json.js";
 
